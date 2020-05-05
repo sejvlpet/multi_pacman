@@ -1,6 +1,7 @@
 import pygame
-import game
 import random
+import game
+import ghost
 
 # Those constants shall be in main
 EMPTY = 0
@@ -15,7 +16,8 @@ GHOST_AND_STOP_PILL = 7
 
 # handles grid generating, places pacmans and ghosts and has public self.play method, which draws and from game.getMove
 # keeps grid uptdated with all the next moves
-class Grid(object):
+class Grid:
+	# public
 	BLACK = (0, 0, 0)
 	WHITE = (255, 255, 255)
 	GREEN = (0, 255, 0)
@@ -39,17 +41,26 @@ class Grid(object):
 
 		# generates maze with walls and pills 
 		self.maze, self.pillsCount = self.__generateMaze(colCount, rowCount)
+		pCords, gCords = self.__placeAgents(5, 40)
+
+		# self.pacmans = self.__setPacmans(pCords)
+
+		self.pacmans = pCords
+		self.ghosts = self.__setGhosts(gCords)
 		
 	def play(self):
 		while True:
-			self.placeAgents(5, 10)
-			self.__draw()
+			game.play(self.pacmans, self.ghosts, self.maze)
 
+			self.__draw()
 			self.clock.tick(2)
 			pygame.display.flip()
 
+	def getStats(self):
+		return self.maze, self.pillsCount
 
-	def placeAgents(self, pacmanCount, ghostCount):
+	# private
+	def __placeAgents(self, pacmanCount, ghostCount):
 		pacmans = [] 
 		ghosts = []
 
@@ -68,6 +79,18 @@ class Grid(object):
 				ghostCount -= 1
 
 		return pacmans, ghosts
+
+	def __setPacmans(self, pCords):
+		pass
+
+	def __setGhosts(self, gCords):
+		ghosts = []
+		for cord in gCords:
+			ghosts += [ghost.Ghost(cord, random.randint(len(self.maze) / 10, len(self.maze) / 5))]
+
+		return ghosts
+
+
 
 	def __getRowCol(self):
 		row = random.randint(0, len(self.maze) - 1)
@@ -177,12 +200,4 @@ class Grid(object):
 	    pillsCount = self.__addPills(maze)
 	    pillsCount -= self.__addStopPill(maze)
 
-	    self.__printMaze(maze)
-
 	    return maze, pillsCount
-
-
-myGrid = Grid(30, 60)
-# randomly places ghost and pacmans
-myGrid.placeAgents(5, 10)
-myGrid.play()
