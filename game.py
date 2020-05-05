@@ -19,8 +19,7 @@ def getMoves(pos, maze):
 
 
 def valid(row, col, maze):
-
-	return row < len(maze) and col < len(maze[0]) and maze[row][col] != grid.WALL
+	return row < len(maze) and col < len(maze[0]) and row >= 0 and col >= 0 and maze[row][col] != grid.WALL
 
 
 
@@ -31,6 +30,32 @@ def play(pacmans, ghosts, maze):
 	for ghost in ghosts:
 		# fixme take care of moving over pills
 		pos = ghost.getCord()
-		maze[pos[0]][pos[1]] = grid.EMPTY
+
+		maze[pos[0]][pos[1]] = afterGhostLeave(maze[pos[0]][pos[1]])
+
 		pos = ghost.move(maze, pacmans)
-		maze[pos[0]][pos[1]] = grid.GHOST
+		maze[pos[0]][pos[1]] = onGhostMove(maze[pos[0]][pos[1]])
+
+
+def afterGhostLeave(s):
+	if s == grid.GHOST or s == grid.EMPTY:
+		return grid.EMPTY
+	if s == grid.GHOST_AND_PILL:
+		return grid.PILL
+	if s == grid.GHOST_AND_STOP_PILL:
+		return grid.STOP_PILL
+	if s == grid.PILL or s == grid.STOP_PILL or s == grid.PACMAN:
+		return s 
+
+def onGhostMove(s):
+	if s == grid.EMPTY:
+		return grid.GHOST
+	if s == grid.PILL:
+		return grid.GHOST_AND_PILL
+	if s == grid.STOP_PILL:
+		return grid.GHOST_AND_STOP_PILL
+	if s == grid.GHOST or s == grid.GHOST_AND_PILL or s == grid.GHOST_AND_STOP_PILL:
+		return s
+	if s == grid.PACMAN:
+		# todo delete pacman
+		return grid.GHOST

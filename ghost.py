@@ -24,8 +24,6 @@ class Ghost:
 		return self.cord
 
 	# private
-
-
 	def __pacmanNearby(self, maze, pacmans):
 		cord = [0, 0]
 		nearby = False

@@ -105,8 +105,9 @@ class Grid:
 			colIterator = 0
 			for cell in row:
 				# default color is white
-				color = self.WHITE
-				if cell == WALL:
+				if cell == EMPTY:
+					color = self.WHITE
+				elif cell == WALL:
 					color = self.BLACK
 				elif cell == PILL:
 					color = self.GREEN
@@ -114,7 +115,7 @@ class Grid:
 					color = self.BLUE
 				elif cell == PACMAN:
 					color = self.YELLOW
-				elif (cell == GHOST or cell == GHOST_AND_STOP_PILL 
+				elif (cell == GHOST or cell == GHOST_AND_PILL 
 					or cell == GHOST_AND_STOP_PILL):
 					color = self.RED
 
@@ -194,7 +195,7 @@ class Grid:
 
 	def __generateMaze(self, rowCount, collCount):
 	    # start with emty maze
-	    maze = [[ 0 for i in range(collCount)] for i in range(rowCount)]
+	    maze = [[ EMPTY for i in range(collCount)] for i in range(rowCount)]
 	    
 	    self.__createWalls(maze)
 	    pillsCount = self.__addPills(maze)
