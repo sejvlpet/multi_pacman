@@ -9,8 +9,6 @@ class Ghost:
 
 	def getCord(self):
 		return self.cord
-		# or perhaps
-		# return self.cord[0], self.cord[1]
 
 	# pacmans shall be list in shape [[row, col]]
 	def move(self, maze, pacmans):
@@ -29,16 +27,18 @@ class Ghost:
 		nearby = False
 		minDistance = len(maze) + len(maze[0]) # such distance is even more than real maximum
 		for pacman in pacmans:
-			dist = game.getDistance(self.cord, pacman) 
+			dist = game.getDistance(self.cord, pacman.getCord()) 
 			if dist < self.radius and dist < minDistance:
 				nearby = True
 				minDistance = dist
-				cord = pacman
+				cord = pacman.getCord()
 
 		return nearby, cord
 
 	def __moveGready(self, cord, maze):
 		moves = game.getMoves(self.cord, maze)
+		if len(moves) == 0:
+			return self.cord
 
 		minDistance = game.getDistance(moves[0], cord)
 		finalMove = moves[0]
@@ -50,9 +50,10 @@ class Ghost:
 		return finalMove
 
 	def __randomMove(self, maze):
-		# sometimes they get unlogically stuck
 		moves = game.getMoves(self.cord, maze)
+		if len(moves) == 0:
+			return self.cord
 
-		return moves[random.randint(0, len(moves) - 1)] # fixme not sure if should there be -1, but I think yees
+		return moves[random.randint(0, len(moves) - 1)] 
 
 

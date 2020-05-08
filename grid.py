@@ -2,6 +2,7 @@ import pygame
 import random
 import game
 import ghost
+import pacman
 
 # Those constants shall be in main
 EMPTY = 0
@@ -26,12 +27,12 @@ class Grid:
 	BLUE = (30, 144, 255)
 	YELLOW = (255, 238, 0)
 
-	WIDTH = 25
-	HEIGHT = 25
+	WIDTH = 15
+	HEIGHT = 15
  
 	MARGIN = 1
 
-	def __init__(self, colCount, rowCount):
+	def __init__(self, colCount, rowCount, pacmansCount, ghostsCount):
 		pygame.init()
 
 		windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
@@ -39,21 +40,25 @@ class Grid:
 		self.screen = pygame.display.set_mode(windowSize)
 		self.clock = pygame.time.Clock()
 
-		# generates maze with walls and pills 
+		# # generates maze with walls and pills 
 		self.maze, self.pillsCount = self.__generateMaze(colCount, rowCount)
-		pCords, gCords = self.__placeAgents(5, 40)
+		pCords, gCords = self.__placeAgents(pacmansCount, ghostsCount)
 
-		# self.pacmans = self.__setPacmans(pCords)
-
-		self.pacmans = pCords
+		
+		# self.pacmans = pCords
+		self.pacmans = self.__setPacmans(pCords)
 		self.ghosts = self.__setGhosts(gCords)
 		
 	def play(self):
+		gameStats = {} # todo something senseful
+		step = 0
 		while True:
-			game.play(self.pacmans, self.ghosts, self.maze)
+			game.play(self.pacmans, self.ghosts, self.maze, gameStats)
+			print(len(self.pacmans), step)
+			step += 1
 
 			self.__draw()
-			self.clock.tick(2)
+			self.clock.tick(1)
 			pygame.display.flip()
 
 	def getStats(self):
@@ -80,16 +85,21 @@ class Grid:
 
 		return pacmans, ghosts
 
-	def __setPacmans(self, pCords):
-		pass
 
 	def __setGhosts(self, gCords):
 		ghosts = []
+		maxLength = len(self.maze) + len(self.maze[0])
 		for cord in gCords:
-			ghosts += [ghost.Ghost(cord, random.randint(len(self.maze) / 10, len(self.maze) / 5))]
+			ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 10), int(maxLength / 5)))]
 
 		return ghosts
 
+	def __setPacmans(self, pCords):
+		pacmans = []
+		for cord in pCords:
+			pacmans += [pacman.Pacman(cord)]
+
+		return pacmans
 
 
 	def __getRowCol(self):
