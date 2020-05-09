@@ -14,9 +14,6 @@ PACMAN = 5
 GHOST_AND_PILL = 6
 GHOST_AND_STOP_PILL = 7
 
-
-# handles grid generating, places pacmans and ghosts and has public self.play method, which draws and from game.getMove
-# keeps grid uptdated with all the next moves
 class Grid:
     # public
     BLACK = (0, 0, 0)
@@ -56,6 +53,7 @@ class Grid:
         step = 0
         over = False
         while not over:
+            self.gameStats["round"] += 1
             over = game.play(self.pacmans, self.ghosts, self.maze, self.gameStats)
             step += 1
 
@@ -74,7 +72,8 @@ class Grid:
             "pillCount": self.pillCount,
             "pacmanCount": len(self.pacmans),
             "pillsEaten": 0,
-            "pacmansEaten": 0
+            "pacmansEaten": 0,
+            "round": 0
         }
 
 
@@ -212,7 +211,7 @@ class Grid:
 
         self.__createWalls()
         self.pillCount = self.__addPills()
-        self.pillCount -= self.__addStopPill()
+        # self.pillCount -= self.__addStopPill()
 
 
 
@@ -248,7 +247,7 @@ class Cell:
     def place(self, member, gameStats = {}):
         self.members[member] = True
 
-        if member == "pacman" and (self.members["pill"] or self.members["stopPill"]):
+        if member == "pacman" and self.members["pill"]:
             gameStats["pillCount"] -= 1
             gameStats["pillsEaten"] += 1
             self.remove("pill")

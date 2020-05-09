@@ -31,12 +31,3 @@ def play(pacmans, ghosts, maze, gameStats):
 		ghosts[i].cord = pos
 
 	return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
-
-
-def isGhost(pos, maze):
-	s = maze[pos[0]][pos[1]]
-	return s == grid.GHOST or s == grid.GHOST_AND_PILL or s == grid.GHOST_AND_STOP_PILL
-
-def isPacman(pos, maze):
-	s = maze[pos[0]][pos[1]]
-	return s == grid.PACMAN

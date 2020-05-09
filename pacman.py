@@ -1,5 +1,6 @@
 import game
 import grid
+import random
 
 class Pacman:
 
@@ -10,14 +11,22 @@ class Pacman:
 		return self.cord
 
 	def move(self, maze, ghosts):		
-		cord = self.__nearestGhost(ghosts)
+		# cord = self.__nearestGhost(ghosts)
+		# self.cord = self.__moveGready(cord, maze)
 
-		self.cord = self.__moveGready(cord, maze)
+		self.cord = self.__randomMove(maze)
 		return self.cord
 
 	# private
+	def __randomMove(self, maze):
+		moves = self.__getMoves(maze)
+
+		if len(moves) == 0:
+			return self.cord  # no move left, just die there
+		return moves[random.randint(0, len(moves) - 1)]
+
 	def __moveGready(self, cord, maze):
-		moves = self.__validMoves(self.__getMoves(maze), maze)
+		moves = self.__getMoves(maze)
 
 		if len(moves) == 0:
 			return self.cord # no move left, just die there
@@ -43,14 +52,6 @@ class Pacman:
 
 		return cord
 
-	def  __validMoves(self, moves, maze):
-		i = 0
-		while i < len(moves):
-			if(game.isGhost(moves[i], maze) or game.isPacman(moves[i], maze)):
-				del moves[i]
-				i -= 1
-			i += 1
-		return moves
 
 	def __getMoves(self, maze):
 		moves = []
