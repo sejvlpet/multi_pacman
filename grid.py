@@ -1,3 +1,4 @@
+from copy import deepcopy
 import pygame
 import random
 import game
@@ -24,19 +25,28 @@ class Grid:
     BLUE = (30, 144, 255)
     YELLOW = (255, 238, 0)
 
-    WIDTH = 15
-    HEIGHT = 15
+    WIDTH = 20
+    HEIGHT = 20
     MARGIN = 1
 
-    def __init__(self, colCount, rowCount, pacmansCount, ghostsCount):
+
+    def __del__(self):
+        if self.real:
+            pygame.quit()
+
+    def createGame(self, colCount, rowCount, pacmansCount, ghostsCount):
         pygame.init()
 
+        self.real = True
         windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
                       colCount * (self.WIDTH + self.MARGIN)]
         self.screen = pygame.display.set_mode(windowSize)
         self.clock = pygame.time.Clock()
 
-        # # generates maze with walls and pills
+        self.colCount = colCount
+        self.rowCount = rowCount
+
+        # generates maze with walls and pills
         self.__generateMaze(colCount, rowCount)
         pCords, gCords = self.__placeAgents(pacmansCount, ghostsCount)
 
@@ -46,19 +56,16 @@ class Grid:
 
         self.__setGameStats()
 
-    def __del__(self):
-        pygame.quit()
-
     def play(self):
         step = 0
         over = False
         while not over:
             self.gameStats["round"] += 1
-            over = game.play(self.pacmans, self.ghosts, self.maze, self.gameStats)
+            over = game.play(self, True)
             step += 1
 
             self.__draw()
-            self.clock.tick(5)
+            self.clock.tick(60000)
             pygame.display.flip()
 
         print(self.gameStats)
@@ -213,7 +220,20 @@ class Grid:
         self.pillCount = self.__addPills()
         # self.pillCount -= self.__addStopPill()
 
+def copyGrid(other):
+    new = Grid()
+    new.real = False
 
+    new.colCount = other.colCount
+    new.rowCount = other.rowCount
+
+    new.pacmans = deepcopy(other.pacmans)
+    new.ghosts = deepcopy(other.ghosts)
+
+    new.maze = deepcopy(other.maze)
+    new.gameStats = deepcopy(other.gameStats)
+
+    return new
 
 class Cell:
     # default memebers

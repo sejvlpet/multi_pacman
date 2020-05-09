@@ -1,6 +1,9 @@
+from copy import deepcopy
+
 import game
 import grid
 import random
+import MCTS
 
 class Pacman:
 
@@ -10,23 +13,34 @@ class Pacman:
 	def getCord(self):
 		return self.cord
 
-	def move(self, maze, ghosts):		
+	def move(self, gameGrid, real):
+		maze = gameGrid.maze
+		ghosts = gameGrid.ghosts
+		gameStats = gameGrid.gameStats
 		# cord = self.__nearestGhost(ghosts)
 		# self.cord = self.__moveGready(cord, maze)
 
-		self.cord = self.__randomMove(maze)
+		if real:
+			self.cord = self.__randomMove(maze)
+		else:
+			pass
+			# todo here will be monte carlo move
+		# fixme as mcts is for all the pacmans, it cannot be here as move of only one
+		# mcts = MCTS.MCTS(grid.copyGrid(gameGrid))
+		# mcts.play()
+
 		return self.cord
 
 	# private
 	def __randomMove(self, maze):
-		moves = self.__getMoves(maze)
+		moves = self.getMoves(maze)
 
 		if len(moves) == 0:
 			return self.cord  # no move left, just die there
 		return moves[random.randint(0, len(moves) - 1)]
 
 	def __moveGready(self, cord, maze):
-		moves = self.__getMoves(maze)
+		moves = self.getMoves(maze)
 
 		if len(moves) == 0:
 			return self.cord # no move left, just die there
@@ -53,7 +67,7 @@ class Pacman:
 		return cord
 
 
-	def __getMoves(self, maze):
+	def getMoves(self, maze):
 		moves = []
 		if game.valid(self.cord[0] + 1, self.cord[1], maze) and self.__valid(self.cord[0] + 1, self.cord[1], maze):
 			moves += [[self.cord[0] + 1, self.cord[1]]]
