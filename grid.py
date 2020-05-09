@@ -47,25 +47,37 @@ class Grid:
         self.pacmans = self.__setPacmans(pCords)
         self.ghosts = self.__setGhosts(gCords)
 
+        self.__setGameStats()
+
     def __del__(self):
         pygame.quit()
 
     def play(self):
-        gameStats = {}  # todo something senseful
         step = 0
-        while True:
-            game.play(self.pacmans, self.ghosts, self.maze, gameStats)
-            print(len(self.pacmans), step)
+        over = False
+        while not over:
+            over = game.play(self.pacmans, self.ghosts, self.maze, self.gameStats)
             step += 1
 
             self.__draw()
             self.clock.tick(5)
             pygame.display.flip()
 
+        print(self.gameStats)
+
     def getStats(self):
-        return self.maze, self.pillsCount
+        return self.maze, self.pillCount
 
     # private
+    def __setGameStats(self):
+        self.gameStats = {
+            "pillCount": self.pillCount,
+            "pacmanCount": len(self.pacmans),
+            "pillsEaten": 0,
+            "pacmansEaten": 0
+        }
+
+
     def __placeAgents(self, pacmanCount, ghostCount):
         pacmans = []
         ghosts = []
@@ -161,14 +173,14 @@ class Grid:
             colIterator += 1
 
     def __addPills(self):
-        pillsCount = 0
+        pillCount = 0
         for row in self.maze:
             for collIterator in range(len(row)):
                 if row[collIterator] == EMPTY and random.random() > 0.7:
                     row[collIterator].place("pill")
-                    pillsCount += 1
+                    pillCount += 1
 
-        return pillsCount
+        return pillCount
 
     def __addStopPill(self):
         deletedPills = 0
@@ -199,8 +211,8 @@ class Grid:
         self.maze = [[Cell() for i in range(collCount)] for j in range(rowCount)]
 
         self.__createWalls()
-        self.pillsCount = self.__addPills()
-        self.pillsCount -= self.__addStopPill()
+        self.pillCount = self.__addPills()
+        self.pillCount -= self.__addStopPill()
 
 
 
@@ -218,11 +230,13 @@ class Cell:
     def __eq__(self, other):
         return self.getStatus() == other
 
-    def placeGhost(self, pacmans = [], pos = []):
+    def placeGhost(self, pacmans = [], pos = [], gameStats = {}):
         self.members["ghostCount"] += 1
 
         if self.members["pacman"]:
             self.remove("pacman")
+            gameStats["pacmanCount"] -= 1
+            gameStats["pacmansEaten"] += 1
             for i in range(len(pacmans)):
                 if pacmans[i].getCord() == pos:
                     del pacmans[i]
@@ -231,10 +245,12 @@ class Cell:
     def removeGhost(self):
         self.members["ghostCount"] -= 1
 
-    def place(self, member):
+    def place(self, member, gameStats = {}):
         self.members[member] = True
 
         if member == "pacman" and (self.members["pill"] or self.members["stopPill"]):
+            gameStats["pillCount"] -= 1
+            gameStats["pillsEaten"] += 1
             self.remove("pill")
             self.remove("stopPill")
 

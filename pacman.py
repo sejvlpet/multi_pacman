@@ -31,11 +31,6 @@ class Pacman:
 				finalMove = move
 		return finalMove
 
-	# def __randomMove(self, maze):
-	# 	moves = game.getMoves(self.cord, maze)
-
-	# 	return moves[random.randint(0, len(moves) - 1)]
-
 
 	def __nearestGhost(self, ghosts):
 		cord = ghosts[0].getCord()
