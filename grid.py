@@ -18,197 +18,240 @@ GHOST_AND_STOP_PILL = 7
 # handles grid generating, places pacmans and ghosts and has public self.play method, which draws and from game.getMove
 # keeps grid uptdated with all the next moves
 class Grid:
-	# public
-	BLACK = (0, 0, 0)
-	WHITE = (255, 255, 255)
-	GREEN = (0, 255, 0)
-	RED = (255, 0, 0)
-	GREY = (220, 220, 220)
-	BLUE = (30, 144, 255)
-	YELLOW = (255, 238, 0)
+    # public
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    GREEN = (0, 255, 0)
+    RED = (255, 0, 0)
+    GREY = (220, 220, 220)
+    BLUE = (30, 144, 255)
+    YELLOW = (255, 238, 0)
 
-	WIDTH = 15
-	HEIGHT = 15
- 
-	MARGIN = 1
+    WIDTH = 15
+    HEIGHT = 15
+    MARGIN = 1
 
-	def __init__(self, colCount, rowCount, pacmansCount, ghostsCount):
-		pygame.init()
+    def __init__(self, colCount, rowCount, pacmansCount, ghostsCount):
+        pygame.init()
 
-		windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
-						   colCount * (self.WIDTH + self.MARGIN)]
-		self.screen = pygame.display.set_mode(windowSize)
-		self.clock = pygame.time.Clock()
+        windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
+                      colCount * (self.WIDTH + self.MARGIN)]
+        self.screen = pygame.display.set_mode(windowSize)
+        self.clock = pygame.time.Clock()
 
-		# # generates maze with walls and pills 
-		self.maze, self.pillsCount = self.__generateMaze(colCount, rowCount)
-		pCords, gCords = self.__placeAgents(pacmansCount, ghostsCount)
+        # # generates maze with walls and pills
+        self.__generateMaze(colCount, rowCount)
+        pCords, gCords = self.__placeAgents(pacmansCount, ghostsCount)
 
-		
-		# self.pacmans = pCords
-		self.pacmans = self.__setPacmans(pCords)
-		self.ghosts = self.__setGhosts(gCords)
-		
-	def play(self):
-		gameStats = {} # todo something senseful
-		step = 0
-		while True:
-			game.play(self.pacmans, self.ghosts, self.maze, gameStats)
-			print(len(self.pacmans), step)
-			step += 1
+        # self.pacmans = pCords
+        self.pacmans = self.__setPacmans(pCords)
+        self.ghosts = self.__setGhosts(gCords)
 
-			self.__draw()
-			self.clock.tick(1)
-			pygame.display.flip()
+    def __del__(self):
+        pygame.quit()
 
-	def getStats(self):
-		return self.maze, self.pillsCount
+    def play(self):
+        gameStats = {}  # todo something senseful
+        step = 0
+        while True:
+            game.play(self.pacmans, self.ghosts, self.maze, gameStats)
+            print(len(self.pacmans), step)
+            step += 1
 
-	# private
-	def __placeAgents(self, pacmanCount, ghostCount):
-		pacmans = [] 
-		ghosts = []
+            self.__draw()
+            self.clock.tick(5)
+            pygame.display.flip()
 
-		while pacmanCount > 0:
-			row, col = self.__getRowCol() 
-			if self.maze[row][col] == EMPTY:
-				self.maze[row][col] = PACMAN
-				pacmans += [[row, col]]
-				pacmanCount -= 1
+    def getStats(self):
+        return self.maze, self.pillsCount
 
-		while ghostCount > 0:
-			row, col = self.__getRowCol() 
-			if self.maze[row][col] == EMPTY:
-				self.maze[row][col] = GHOST
-				ghosts += [[row, col]]
-				ghostCount -= 1
+    # private
+    def __placeAgents(self, pacmanCount, ghostCount):
+        pacmans = []
+        ghosts = []
 
-		return pacmans, ghosts
+        while pacmanCount > 0:
+            row, col = self.__getRowCol()
+            if self.maze[row][col] == EMPTY:
+                self.maze[row][col].place("pacman")
+                pacmans += [[row, col]]
+                pacmanCount -= 1
 
+        while ghostCount > 0:
+            row, col = self.__getRowCol()
+            if self.maze[row][col] == EMPTY:
+                self.maze[row][col].placeGhost()
+                ghosts += [[row, col]]
+                ghostCount -= 1
 
-	def __setGhosts(self, gCords):
-		ghosts = []
-		maxLength = len(self.maze) + len(self.maze[0])
-		for cord in gCords:
-			ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 10), int(maxLength / 5)))]
+        return pacmans, ghosts
 
-		return ghosts
+    def __setGhosts(self, gCords):
+        ghosts = []
+        maxLength = len(self.maze) + len(self.maze[0])
+        for cord in gCords:
+            ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 10), int(maxLength / 5)))]
 
-	def __setPacmans(self, pCords):
-		pacmans = []
-		for cord in pCords:
-			pacmans += [pacman.Pacman(cord)]
+        return ghosts
 
-		return pacmans
+    def __setPacmans(self, pCords):
+        pacmans = []
+        for cord in pCords:
+            pacmans += [pacman.Pacman(cord)]
 
+        return pacmans
 
-	def __getRowCol(self):
-		row = random.randint(0, len(self.maze) - 1)
-		col = random.randint(0, len(self.maze[0]) - 1)
-		return row, col
+    def __getRowCol(self):
+        row = random.randint(0, len(self.maze) - 1)
+        col = random.randint(0, len(self.maze[0]) - 1)
+        return row, col
 
+    def __draw(self):
+        self.screen.fill(self.GREY)
+        rowIterator = 0
+        for row in self.maze:
+            colIterator = 0
+            for cell in row:
+                # default color is white
+                if cell == EMPTY:
+                    color = self.WHITE
+                elif cell == WALL:
+                    color = self.BLACK
+                elif cell == PILL:
+                    color = self.GREEN
+                elif cell == STOP_PILL:
+                    color = self.BLUE
+                elif cell == PACMAN:
+                    color = self.YELLOW
+                elif (cell == GHOST or cell == GHOST_AND_PILL
+                      or cell == GHOST_AND_STOP_PILL):
+                    color = self.RED
 
-	def __draw(self):
-		self.screen.fill(self.GREY)
-		rowIterator = 0
-		for row in self.maze:
-			colIterator = 0
-			for cell in row:
-				# default color is white
-				if cell == EMPTY:
-					color = self.WHITE
-				elif cell == WALL:
-					color = self.BLACK
-				elif cell == PILL:
-					color = self.GREEN
-				elif cell == STOP_PILL:
-					color = self.BLUE
-				elif cell == PACMAN:
-					color = self.YELLOW
-				elif (cell == GHOST or cell == GHOST_AND_PILL 
-					or cell == GHOST_AND_STOP_PILL):
-					color = self.RED
+                pygame.draw.rect(self.screen,
+                                 color,
+                                 [(self.MARGIN + self.WIDTH) * colIterator + self.MARGIN,
+                                  (self.MARGIN + self.HEIGHT) * rowIterator + self.MARGIN,
+                                  self.WIDTH,
+                                  self.HEIGHT])
+                colIterator += 1
+            rowIterator += 1
 
-				pygame.draw.rect(self.screen,
-	                             color,
-	                             [(self.MARGIN + self.WIDTH) * colIterator + self.MARGIN,
-	                              (self.MARGIN + self.HEIGHT) * rowIterator + self.MARGIN,
-	                              self.WIDTH,
-	                              self.HEIGHT])
-				colIterator += 1
-			rowIterator += 1
-
-
-	def __del__(self):
-		pygame.quit()
+    def __addWalls(self, length, row, col):
+        for i in range(length):
+            self.maze[row + i][col].place("wall")
 
 
-	def __printMaze(self, maze):
- 		for line in maze:
- 			print(line)
+    def __createWalls(self):
+        rowCount = len(self.maze)
+        collCount = len(self.maze[0])
+        colIterator = 1
+        skip = False
+        while colIterator < collCount - 1:
+            rowIterator = 1
+            while rowIterator < rowCount - 1:
+                if (random.random() > 0.33):
+                    length = random.randint(0, int((rowCount - rowIterator) / 4))
+                    self.__addWalls(length, rowIterator, colIterator)
+                    rowIterator += length
+                    skip = True
+                rowIterator += 1
+            if skip:
+                colIterator += 1
+                skip = False
+            colIterator += 1
 
-	def __addWalls(self, maze, length, row, col):
-	    for i in range(length):
-	        maze[row + i][col] = WALL
+    def __addPills(self):
+        pillsCount = 0
+        for row in self.maze:
+            for collIterator in range(len(row)):
+                if row[collIterator] == EMPTY and random.random() > 0.7:
+                    row[collIterator].place("pill")
+                    pillsCount += 1
+
+        return pillsCount
+
+    def __addStopPill(self):
+        deletedPills = 0
+        if self.maze[0][0] == PILL:
+            self.maze[0][0].remove("pill")
+            deletedPills += 1
+        self.maze[0][0].place("stopPill")
+
+        if self.maze[0][len(self.maze[0]) - 1] == PILL:
+            self.maze[0][len(self.maze[0]) - 1].remove("pill")
+            deletedPills += 1
+        self.maze[0][len(self.maze[0]) - 1].place("stopPill")
+
+        if self.maze[len(self.maze) - 1][0] == PILL:
+            self.maze[len(self.maze) - 1][0].remove("pill")
+            deletedPills += 1
+        self.maze[len(self.maze) - 1][0].place("stopPill")
+
+        if self.maze[len(self.maze) - 1][len(self.maze[0]) - 1] == PILL:
+            self.maze[len(self.maze) - 1][len(self.maze[0]) - 1].remove("pill")
+            deletedPills += 1
+        self.maze[len(self.maze) - 1][len(self.maze[0]) - 1].place("stopPill")
+
+        return deletedPills
+
+    def __generateMaze(self, rowCount, collCount):
+        # start with emty maze
+        self.maze = [[Cell() for i in range(collCount)] for j in range(rowCount)]
+
+        self.__createWalls()
+        self.pillsCount = self.__addPills()
+        self.pillsCount -= self.__addStopPill()
 
 
-	def __createWalls(self, maze):
-	    rowCount = len(maze)
-	    collCount = len(maze[0])
-	    colIterator = 1
-	    skip = False
-	    while colIterator < collCount - 1:
-	        rowIterator = 1
-	        while rowIterator < rowCount - 1:
-	            if(random.random() > 0.33):
-	                length = random.randint(0, int  ((rowCount - rowIterator) / 4))
-	                self.__addWalls(maze, length, rowIterator, colIterator)
-	                rowIterator += length
-	                skip = True
-	            rowIterator += 1
-	        if skip:
-	            colIterator += 1
-	            skip = False
-	        colIterator += 1
+
+class Cell:
+    # default memebers
+    def __init__(self):
+        self.members = {
+            "pacman": False,
+            "pill": False,
+            "stopPill": False,
+            "wall": False,
+            "ghostCount": 0
+        }
+
+    def __eq__(self, other):
+        return self.getStatus() == other
+
+    def placeGhost(self, pacmans = [], pos = []):
+        self.members["ghostCount"] += 1
+
+        if self.members["pacman"]:
+            self.remove("pacman")
+            for i in range(len(pacmans)):
+                if pacmans[i].getCord() == pos:
+                    del pacmans[i]
+                    break
+
+    def removeGhost(self):
+        self.members["ghostCount"] -= 1
+
+    def place(self, member):
+        self.members[member] = True
+
+        if member == "pacman" and (self.members["pill"] or self.members["stopPill"]):
+            self.remove("pill")
+            self.remove("stopPill")
+
+    def remove(self, member):
+        self.members[member] = False
+
+    def getStatus(self):
+        if self.members["wall"]:
+            return WALL
+        if self.members["ghostCount"] > 0:
+            return GHOST
+        if self.members["pacman"]:
+            return PACMAN
+        if self.members["pill"]:
+            return PILL
+        if self.members["stopPill"]:
+            return STOP_PILL
+        return EMPTY
 
 
-	def __addPills(self, maze):
-	    pillsCount = 0
-	    for row in maze:
-	        for collIterator in range(len(row)):
-	            if row[collIterator] == EMPTY and random.random() > 0.7:
-	                row[collIterator] = PILL
-	                pillsCount += 1
-
-	    return pillsCount
-
-
-	def __addStopPill(self, maze):
-	    deletedPills = 0
-	    if maze[0][0] == PILL:
-	        deletedPills += 1 
-	    maze[0][0] = STOP_PILL
-
-	    if maze[0][len(maze[0]) - 1] == PILL:
-	        deletedPills += 1 
-	    maze[0][len(maze[0]) - 1] = STOP_PILL
-
-	    if maze[len(maze) - 1][0] == PILL:
-	        deletedPills += 1 
-	    maze[len(maze) - 1][0] = STOP_PILL
-
-	    if maze[len(maze) - 1][len(maze[0]) - 1] == PILL:
-	        deletedPills += 1 
-	    maze[len(maze) - 1][len(maze[0]) - 1] = STOP_PILL
-
-	    return deletedPills
-
-	def __generateMaze(self, rowCount, collCount):
-	    # start with emty maze
-	    maze = [[ EMPTY for i in range(collCount)] for i in range(rowCount)]
-	    
-	    self.__createWalls(maze)
-	    pillsCount = self.__addPills(maze)
-	    pillsCount -= self.__addStopPill(maze)
-
-	    return maze, pillsCount

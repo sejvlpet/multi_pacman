@@ -1,5 +1,6 @@
 import game
 import random
+import grid
 
 class Ghost:
 
@@ -36,7 +37,7 @@ class Ghost:
 		return nearby, cord
 
 	def __moveGready(self, cord, maze):
-		moves = game.getMoves(self.cord, maze)
+		moves = self.__getMoves(maze)
 		if len(moves) == 0:
 			return self.cord
 
@@ -50,10 +51,31 @@ class Ghost:
 		return finalMove
 
 	def __randomMove(self, maze):
-		moves = game.getMoves(self.cord, maze)
+		moves = self.__getMoves(maze)
 		if len(moves) == 0:
 			return self.cord
 
-		return moves[random.randint(0, len(moves) - 1)] 
+		return moves[random.randint(0, len(moves) - 1)]
+
+	def __getMoves(self, maze):
+		moves = []
+		if game.valid(self.cord[0] + 1, self.cord[1], maze) and self.__valid(self.cord[0] + 1, self.cord[1], maze):
+			moves += [[self.cord[0] + 1, self.cord[1]]]
+
+		if game.valid(self.cord[0] - 1, self.cord[1], maze) and self.__valid(self.cord[0] - 1, self.cord[1], maze):
+			moves += [[self.cord[0] - 1, self.cord[1]]]
+
+		if game.valid(self.cord[0], self.cord[1] + 1, maze) and self.__valid(self.cord[0], self.cord[1] + 1, maze):
+			moves += [[self.cord[0], self.cord[1] + 1]]
+
+		if game.valid(self.cord[0], self.cord[1] - 1, maze) and self.__valid(self.cord[0], self.cord[1] - 1, maze):
+			moves += [[self.cord[0], self.cord[1] - 1]]
+
+		return moves
+
+	def __valid(self, row, col, maze):
+		# return not (maze[row][col] == grid.GHOST)
+		return True
+
 
 

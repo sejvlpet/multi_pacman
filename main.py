@@ -2,5 +2,5 @@ import grid
 
 
 
-myGrid = grid.Grid(50, 100, 50, 50)
+myGrid = grid.Grid(60, 100, 50, 50)
 myGrid.play()
