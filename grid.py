@@ -65,7 +65,7 @@ class Grid:
             step += 1
 
             self.__draw()
-            self.clock.tick(60000)
+            self.clock.tick(1)
             pygame.display.flip()
 
         print(self.gameStats)

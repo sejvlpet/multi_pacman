@@ -1,4 +1,4 @@
-import ghost
+import time
 import grid
 import math
 import MCTS
@@ -14,13 +14,23 @@ def getDistance(pos1, pos2):
 def valid(row, col, maze):
     return row < len(maze) and col < len(maze[0]) and row >= 0 and col >= 0 and maze[row][col] != grid.WALL
 
-
+"""
+    takes care about play
+    returns true if game's over
+"""
 def play(gameGrid, real=True):
     pacmans = gameGrid.pacmans
     ghosts = gameGrid.ghosts
     maze = gameGrid.maze
     gameStats = gameGrid.gameStats
 
+    playPacmans(gameGrid, maze, pacmans, gameStats, real)
+    playGhosts(maze, ghosts, pacmans, gameStats)
+
+    return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
+
+def playPacmans(gameGrid, maze, pacmans, gameStats, real):
+    # if not real:
     for i in range(len(pacmans)):
         pos = pacmans[i].getCord()
         maze[pos[0]][pos[1]].remove("pacman")
@@ -28,9 +38,12 @@ def play(gameGrid, real=True):
         pos = pacmans[i].move(gameGrid, real)
         maze[pos[0]][pos[1]].place("pacman", gameStats)
         pacmans[i].cord = pos
-    mcts = MCTS.MCTS(grid.copyGrid(gameGrid))
-    mcts.play()
+    # else:
+    if real:
+        mcts = MCTS.MCTS(gameGrid)
+        mcts.play()
 
+def playGhosts(maze, ghosts, pacmans, gameStats):
     for i in range(len(ghosts)):
         pos = ghosts[i].getCord()
         maze[pos[0]][pos[1]].removeGhost()
@@ -39,4 +52,28 @@ def play(gameGrid, real=True):
         maze[pos[0]][pos[1]].placeGhost(pacmans, pos, gameStats)
         ghosts[i].cord = pos
 
-    return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
+"""
+    move pacmans on grid as moves say and let ghosts play
+"""
+def pacmansInWave(grid, moves):
+    i = 0
+    maze = grid.maze
+    pacmans = grid.pacmans
+    gameStats = grid.gameStats
+    for move in moves:
+        pos = pacmans[i].getCord()
+        maze[pos[0]][pos[1]].remove("pacman")
+        maze[move[0]][move[1]].place("pacman", gameStats)
+        i += 1
+
+    playGhosts(maze, grid.ghosts, pacmans, gameStats)
+
+"""
+    randomly plays and returns stats
+"""
+def playRandomGame(grid):
+    pass
+    target = time.time() + 0.01
+    while not play(grid, False) and time.time() < target:
+        pass
+    return grid.gameStats
