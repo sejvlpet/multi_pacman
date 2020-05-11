@@ -3,6 +3,6 @@ import grid
 
 
 myGrid = grid.Grid()
-myGrid.createGame(20, 20, 4, 5)
+myGrid.createGame(15, 15, 4, 5)
 
 myGrid.play()

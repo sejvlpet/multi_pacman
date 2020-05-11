@@ -15,7 +15,7 @@ class Ghost:
 	def move(self, maze, pacmans):
 		pacmanNearby, cord = self.__pacmanNearby(maze, pacmans) 
 		if pacmanNearby:
-			newPos = self.__moveGready(cord, maze)
+			newPos = self.__moveGreedy(cord, maze)
 		else:
 			newPos = self.__randomMove(maze)
 
@@ -36,7 +36,7 @@ class Ghost:
 
 		return nearby, cord
 
-	def __moveGready(self, cord, maze):
+	def __moveGreedy(self, cord, maze):
 		moves = self.__getMoves(maze)
 		if len(moves) == 0:
 			return self.cord

@@ -65,7 +65,7 @@ class Grid:
             step += 1
 
             self.__draw()
-            self.clock.tick(1)
+            self.clock.tick(4)
             pygame.display.flip()
 
         print(self.gameStats)
@@ -80,7 +80,10 @@ class Grid:
             "pacmanCount": len(self.pacmans),
             "pillsEaten": 0,
             "pacmansEaten": 0,
-            "round": 0
+            "round": 0,
+            "wins": 0,
+            "looses": 0,
+            "firstEatenAt": 0
         }
 
 
@@ -167,8 +170,8 @@ class Grid:
         while colIterator < collCount - 1:
             rowIterator = 1
             while rowIterator < rowCount - 1:
-                if (random.random() > 0.33):
-                    length = random.randint(0, int((rowCount - rowIterator) / 4))
+                if (random.random() > 0.1):
+                    length = random.randint(0, int((rowCount - rowIterator) / 2))
                     self.__addWalls(length, rowIterator, colIterator)
                     rowIterator += length
                     skip = True

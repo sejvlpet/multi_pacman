@@ -2,17 +2,32 @@ import time
 import grid
 import math
 import MCTS
+import random
 
-
+#helpers
 def getDistance(pos1, pos2):
-    return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
-
-
-# return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]) # works weirdly with that
+    # return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
 def valid(row, col, maze):
     return row < len(maze) and col < len(maze[0]) and row >= 0 and col >= 0 and maze[row][col] != grid.WALL
+
+
+def getNeighbors(cord, maze):
+    neighbors = []
+    if valid(cord[0] + 1, cord[1], maze):
+        neighbors += [[cord[0] + 1, cord[1]]]
+    if valid(cord[0] - 1, cord[1], maze):
+        neighbors += [[cord[0] - 1, cord[1]]]
+
+    if valid(cord[0], cord[1] + 1, maze):
+        neighbors += [[cord[0], cord[1] + 1]]
+
+    if valid(cord[0], cord[1] - 1, maze):
+        neighbors += [[cord[0], cord[1] - 1]]
+
+    return neighbors[:]
 
 """
     takes care about play
@@ -75,10 +90,22 @@ def pacmansInWave(grid, moves):
     randomly plays and returns stats
 """
 def playRandomGame(grid):
-    target = time.time() + 0.01
-    round = 0
-    while not play(grid, False) and time.time() < target:
-        # round += 1
-        pass
-    # print("finished in ", round, " rounds")
+    target = time.time() + 0.002
+    tmp = grid.gameStats["pillCount"]
+    if random.random() > 0.8:
+    	i = 20
+    else:
+    	i = 5
+    saved = False
+    while not play(grid, False) and i > 0:
+        # pass
+        if not saved and tmp != grid.gameStats["pillCount"]:
+            grid.gameStats["firstEatenAt"] = i
+            saved = True
+        i -= 1
+
+    if grid.gameStats["pacmanCount"] == 0:
+        grid.gameStats["looses"] = 1
+    if grid.gameStats["pillCount"] == 0:
+        grid.gameStats["wins"] = 1
     return grid.gameStats

@@ -3,6 +3,7 @@ from copy import deepcopy
 import game
 import grid
 import random
+import heapq
 import MCTS
 
 class Pacman:
@@ -16,10 +17,15 @@ class Pacman:
 	def move(self, gameGrid):
 		maze = gameGrid.maze
 		ghosts = gameGrid.ghosts
-		gameStats = gameGrid.gameStats
-		# cord = self.__nearestGhost(ghosts)
-		# self.cord = self.__moveGready(cord, maze)
-		self.cord = self.__randomMove(maze)
+		r = random.random()
+		if r < 0.1:
+			cord = self.__nearestGhost(ghosts)
+			self.cord = self.__movefromGhost(cord, maze)
+		elif r < 0.8:
+			cord = self.__nearestPill(maze)
+			self.cord = self.__greadyPill(cord, maze)
+		else:
+			self.cord = self.__randomMove(maze)
 		return self.cord
 
 
@@ -39,7 +45,23 @@ class Pacman:
 
 		return moves[:]
 
-	# private
+	def __nearestPill(self, maze):
+		neighbors = self.getMoves(maze)
+		added = {}
+		# fixme really inefective, but it shouldn't matter
+		for neighbor in neighbors:
+			row = neighbor[0]
+			col = neighbor[1]
+			if maze[row][col].members["pill"]:
+				return neighbor
+			tmp = game.getNeighbors(neighbor, maze)
+			for t in tmp:
+				if (t[0], t[1]) not in added:
+					neighbors += [t]
+					added[(row, col)] = True
+		# todo remove
+		return self.cord
+
 	def __randomMove(self, maze):
 		moves = self.getMoves(maze)
 
@@ -47,7 +69,22 @@ class Pacman:
 			return self.cord  # no move left, just die there
 		return moves[random.randint(0, len(moves) - 1)]
 
-	def __moveGready(self, cord, maze):
+	def __greadyPill(self, cord, maze):
+		moves = self.getMoves(maze)
+
+		if len(moves) == 0:
+			return self.cord # no move left, just die there
+
+		minDistance = game.getDistance(moves[0], cord)
+		finalMove = moves[0]
+		for move in moves:
+			dist = game.getDistance(move, cord)
+			if dist < minDistance:
+				minDistance = dist
+				finalMove = move
+		return finalMove
+
+	def __movefromGhost(self, cord, maze):
 		moves = self.getMoves(maze)
 
 		if len(moves) == 0:

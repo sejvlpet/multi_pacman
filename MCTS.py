@@ -1,7 +1,6 @@
 import time
 import random
-from copy import deepcopy
-
+import math
 import game
 import grid
 import types
@@ -16,7 +15,7 @@ class MCTS:
         self.root.initiliaze(gameGrid, 0)
 
     def play(self):
-        target = time.time() + 1
+        target = time.time() + 0.33
         playedGames = 0
         while time.time() < target:
             playedGames += 1
@@ -25,9 +24,9 @@ class MCTS:
         best = self.__getInitialBest()
         self.__getBestMove(0, self.root.children, [], best)
         res, moves = self.root.getNodeAndMoves(best["cords"])
-        
+
         game.pacmansInWave(self.grid, moves)
-        print(best["score"])
+        print(best["score"], playedGames)
 
 
     """
@@ -183,21 +182,41 @@ class Stats:
         self.initialPillsEaten = gameStats["pillsEaten"]
         self.initialRounds = gameStats["round"]
         self.initialPacmansEaten = gameStats["pacmansEaten"]
+        self.initialLooses = gameStats["looses"]
+        self.initialWins = gameStats["wins"]
 
         self.rounds = 0
         self.pillsEaten = 0
         self.pacmansEaten = 0
+        self.looses = 0
+        self.wins = 0
+        self.firsts = 0
+
         self.visitedTimes = 0
 
     def saveVisit(self, gameStats):
         self.pillsEaten += gameStats["pillsEaten"] - self.initialPillsEaten
         self.rounds += gameStats["round"] - self.initialRounds
         self.pacmansEaten += gameStats["pacmansEaten"] - self.initialPillsEaten
+        self.looses += gameStats["looses"] - self.initialLooses
+        self.wins += gameStats["wins"] - self.initialWins
+        self.firsts += gameStats["firstEatenAt"]
         self.visitedTimes += 1
 
     def getScore(self):
         if self.visitedTimes == 0:
             return 0
-        # - (self.rounds / self.visitedTimes)
-        # return (self.pillsEaten / self.visitedTimes) / (self.rounds / self.visitedTimes) - (self.pacmansEaten / self.visitedTimes) * (self.rounds / self.visitedTimes)
-        return (self.pillsEaten / self.visitedTimes)
+
+        metric = self.__mean(self.pillsEaten) - self.__mean(self.pacmansEaten) + self.__mean(self.firsts) / 10
+        if self.wins > 0:
+            return 10000 - self.__mean(self.rounds)
+        if self.looses > 0:
+            return self.__mean(self.rounds)
+
+        return metric
+        # return (self.pillsEaten / self.visitedTimes) / (self.rounds / self.visitedTimes)
+        # return (self.pillsEaten / self.visitedTimes) * ((self.firsts / self.visitedTimes) + 1)
+        # return self.pillsEaten / self.visitedTimes
+
+    def __mean(self, val):
+        return val / self.visitedTimes
