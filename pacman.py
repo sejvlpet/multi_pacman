@@ -13,23 +13,31 @@ class Pacman:
 	def getCord(self):
 		return self.cord
 
-	def move(self, gameGrid, real):
+	def move(self, gameGrid):
 		maze = gameGrid.maze
 		ghosts = gameGrid.ghosts
 		gameStats = gameGrid.gameStats
 		# cord = self.__nearestGhost(ghosts)
 		# self.cord = self.__moveGready(cord, maze)
-
-		if real:
-			self.cord = self.__randomMove(maze)
-		else:
-			pass
-			# todo here will be monte carlo move
-		# fixme as mcts is for all the pacmans, it cannot be here as move of only one
-		# mcts = MCTS.MCTS(grid.copyGrid(gameGrid))
-		# mcts.play()
-
+		self.cord = self.__randomMove(maze)
 		return self.cord
+
+
+	def getMoves(self, maze):
+		moves = []
+		if game.valid(self.cord[0] + 1, self.cord[1], maze) and self.__valid(self.cord[0] + 1, self.cord[1], maze):
+			moves += [[self.cord[0] + 1, self.cord[1]]]
+
+		if game.valid(self.cord[0] - 1, self.cord[1], maze) and self.__valid(self.cord[0] - 1, self.cord[1], maze):
+			moves += [[self.cord[0] - 1, self.cord[1]]]
+
+		if game.valid(self.cord[0], self.cord[1] + 1, maze) and self.__valid(self.cord[0], self.cord[1] + 1, maze):
+			moves += [[self.cord[0], self.cord[1] + 1]]
+
+		if game.valid(self.cord[0], self.cord[1] - 1, maze) and self.__valid(self.cord[0], self.cord[1] - 1, maze):
+			moves += [[self.cord[0], self.cord[1] - 1]]
+
+		return moves[:]
 
 	# private
 	def __randomMove(self, maze):
@@ -67,21 +75,6 @@ class Pacman:
 		return cord
 
 
-	def getMoves(self, maze):
-		moves = []
-		if game.valid(self.cord[0] + 1, self.cord[1], maze) and self.__valid(self.cord[0] + 1, self.cord[1], maze):
-			moves += [[self.cord[0] + 1, self.cord[1]]]
-
-		if game.valid(self.cord[0] - 1, self.cord[1], maze) and self.__valid(self.cord[0] - 1, self.cord[1], maze):
-			moves += [[self.cord[0] - 1, self.cord[1]]]
-
-		if game.valid(self.cord[0], self.cord[1] + 1, maze) and self.__valid(self.cord[0], self.cord[1] + 1, maze):
-			moves += [[self.cord[0], self.cord[1] + 1]]
-
-		if game.valid(self.cord[0], self.cord[1] - 1, maze) and self.__valid(self.cord[0], self.cord[1] - 1, maze):
-			moves += [[self.cord[0], self.cord[1] - 1]]
-
-		return moves
 
 	def __valid(self, row, col, maze):
 		return not (maze[row][col] == grid.GHOST or maze[row][col] == grid.PACMAN)

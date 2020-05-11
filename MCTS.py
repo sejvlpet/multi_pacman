@@ -2,6 +2,8 @@ import time
 import random
 import game
 import grid
+import types
+
 
 
 class MCTS:
@@ -10,7 +12,7 @@ class MCTS:
     def __init__(self, gameGrid):
         self.grid = gameGrid
         self.root = Node()  # fixme avoid grid overriding
-        self.root.initiliaze(gameGrid)
+        self.root.initiliaze(gameGrid, 0)
         self.stats = Stats(gameGrid)
 
     def play(self):
@@ -31,45 +33,78 @@ class MCTS:
 class Node:
     def __init__(self, ):
         self.initiliazed = False
-
+        self.movesCounts = []
+        self.childrenMoves = []
+        self.children = []
     """
-        creates deep copy of game grid with game state coresponding to this node
+        takes deep copy of game grid with game state coresponding to this node
     """
-    def initiliaze(self, gameGrid):
+    def initiliaze(self, gameGrid, level):
         self.grid = gameGrid
         self.__setMoves()
-        self.children = []
+        if len(self.childrenMoves) == 0:
+            # todo handle locked pacmans - loose
+            return
         self.__initiliazeChildren(0, self.children)
+        self.level = level
         self.initiliazed = True
 
     """
         selects child to play, initilazes if not , calls its play method and saves result
     """
     def findMove(self):
+        # todo better selection
+        # print("playing at level ", self.level)
         rand = selectRandoms(self.movesCounts)
-        moves = []
-        i = 0
-        res = self.children
-        for r in rand:
-            res = res[r]
-            moves += [self.childrenMoves[i][r]] # this should choose correct move of pacman on this index
-            i += 1
-        # todo handle this branch by moves above
+        res, moves = self.__getNodeAndMoves(rand)
+
+        if isinstance(res, list):
+            # todo handle finished games better
+            return
         if not res.initiliazed:
             newGrid = grid.copyGrid(self.grid)
             game.pacmansInWave(newGrid, moves)
-            res.initiliaze(newGrid)
-        stats = game.playRandomGame(grid.copyGrid(res.grid))
-        print(stats)
+            res.initiliaze(newGrid, self.level + 1)
+            if not res.initiliazed:
+                # todo handle finished games better
+                return
+            stats = res.__playRandomGame()
+        else:
+            # self.__playRandomGame()
+            stats = res.findMove()
+
+        # print(stats)
+        # return stats
+
+    """
+        plays random game and saves stats
+    """
+    def __playRandomGame(self):
+        stats = game.playRandomGame(grid.copyGrid(self.grid))
+        # todo set stats - for me and res
+        return stats
+
+
+    """
+        finds and return node with its moves
+    """
+    def __getNodeAndMoves(self, indexes):
+        moves = []
+        i = 0
+        res = self.children
+        for r in indexes:
+            res = res[r]
+            moves += [self.childrenMoves[i][r]]  # this should choose correct move of pacman on this index
+            i += 1
+        return res, moves
+
     """
         initialized empty child node
     """
     def __initiliazeChildren(self, depth, addTo):
         if depth == len(self.movesCounts) - 1:
             for i in range(self.movesCounts[depth]):
-                # todo initialize with deepCopy of grid and moved pacmans
                 addTo += [Node()]
-
         else:
             for i in range(self.movesCounts[depth]):
                 addTo += [[]]
@@ -79,21 +114,19 @@ class Node:
         sets all possible moves of children and counts
     """
     def __setMoves(self):
-        self.movesCounts = []
-        self.childrenMoves = []
         for pacman in self.grid.pacmans:
             moves = pacman.getMoves(self.grid.maze)
-            self.movesCounts += [len(moves)]
-            self.childrenMoves += [moves[:]]  # fixme check if nothing overrides this
+            if len(moves) > 0: # ignore pacmans without moves and let them die their death
+                self.movesCounts += [len(moves)]
+                self.childrenMoves += [moves[:]]  # fixme check if nothing overrides this
 
 """
-    selects random node from list of move counts
+    selects random list from list of move counts
 """
 def selectRandoms(movesCounts):
     res = []
     for c in movesCounts:
-        # fixme if pacman has no move left, random number from 0 to 0 is beeing selected and rondit fails
-        res += [random.randint(1, c) - 1]
+        res += [random.randint(0, c - 1)]
     return res
 
 

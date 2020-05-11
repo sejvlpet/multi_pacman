@@ -1,4 +1,5 @@
 from copy import deepcopy
+import _pickle as cPickle
 import pygame
 import random
 import game
@@ -227,12 +228,17 @@ def copyGrid(other):
     new.colCount = other.colCount
     new.rowCount = other.rowCount
 
-    new.pacmans = deepcopy(other.pacmans)
-    new.ghosts = deepcopy(other.ghosts)
+    new.pacmans = cPickle.loads(cPickle.dumps(other.pacmans, -1))
+    new.ghosts = cPickle.loads(cPickle.dumps(other.ghosts, -1))
 
-    new.maze = deepcopy(other.maze)
-    new.gameStats = deepcopy(other.gameStats)
+    new.maze = cPickle.loads(cPickle.dumps(other.maze, -1))
+    new.gameStats = cPickle.loads(cPickle.dumps(other.gameStats, -1))
 
+    # new.pacmans = deepcopy(other.pacmans)
+    # new.ghosts = deepcopy(other.ghosts)
+    #
+    # new.maze = deepcopy(other.maze)
+    # new.gameStats = deepcopy(other.gameStats)
     return new
 
 class Cell:

@@ -35,7 +35,7 @@ def playPacmans(gameGrid, maze, pacmans, gameStats, real):
         pos = pacmans[i].getCord()
         maze[pos[0]][pos[1]].remove("pacman")
 
-        pos = pacmans[i].move(gameGrid, real)
+        pos = pacmans[i].move(gameGrid)
         maze[pos[0]][pos[1]].place("pacman", gameStats)
         pacmans[i].cord = pos
     # else:
@@ -64,6 +64,8 @@ def pacmansInWave(grid, moves):
         pos = pacmans[i].getCord()
         maze[pos[0]][pos[1]].remove("pacman")
         maze[move[0]][move[1]].place("pacman", gameStats)
+
+        pacmans[i].cord = move
         i += 1
 
     playGhosts(maze, grid.ghosts, pacmans, gameStats)
@@ -72,8 +74,10 @@ def pacmansInWave(grid, moves):
     randomly plays and returns stats
 """
 def playRandomGame(grid):
-    pass
-    target = time.time() + 0.01
+    target = time.time() + 0.005
+    round = 0
     while not play(grid, False) and time.time() < target:
+        # round += 1
         pass
+    # print("finished in ", round, " rounds")
     return grid.gameStats
