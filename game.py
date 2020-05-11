@@ -19,6 +19,7 @@ def valid(row, col, maze):
     returns true if game's over
 """
 def play(gameGrid, real=True):
+    gameGrid.gameStats["round"] += 1
     pacmans = gameGrid.pacmans
     ghosts = gameGrid.ghosts
     maze = gameGrid.maze
@@ -61,6 +62,9 @@ def pacmansInWave(grid, moves):
     gameStats = grid.gameStats
     for move in moves:
         pos = pacmans[i].getCord()
+        if maze[move[0]][move[1]].members["pacman"]:
+            continue
+            # fixme handle moves in wave
         maze[pos[0]][pos[1]].remove("pacman")
         maze[move[0]][move[1]].place("pacman", gameStats)
 

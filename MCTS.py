@@ -39,7 +39,7 @@ class MCTS:
             # compare results
             i = 0
             for node in children:
-                score = node.stats.getMean()
+                score = node.stats.getScore()
                 if score > best["score"]:
                     tmp = cords[:]
                     tmp += [i]
@@ -121,7 +121,7 @@ class Node:
     """
     def getScoreAt(self, indexes):
         res, moves = self.getNodeAndMoves(indexes)
-        return res.stats.getMean()
+        return res.stats.getScore()
 
     """
         plays random game and saves stats
@@ -180,15 +180,24 @@ def selectRandoms(movesCounts):
 """
 class Stats:
     def __init__(self, gameStats):
-        self.initialEaten = gameStats["pillsEaten"]
+        self.initialPillsEaten = gameStats["pillsEaten"]
+        self.initialRounds = gameStats["round"]
+        self.initialPacmansEaten = gameStats["pacmansEaten"]
+
+        self.rounds = 0
+        self.pillsEaten = 0
+        self.pacmansEaten = 0
         self.visitedTimes = 0
-        self.eaten = 0
 
     def saveVisit(self, gameStats):
-        self.eaten += gameStats["pillsEaten"] - self.initialEaten
+        self.pillsEaten += gameStats["pillsEaten"] - self.initialPillsEaten
+        self.rounds += gameStats["round"] - self.initialRounds
+        self.pacmansEaten += gameStats["pacmansEaten"] - self.initialPillsEaten
         self.visitedTimes += 1
 
-    def getMean(self):
+    def getScore(self):
         if self.visitedTimes == 0:
             return 0
-        return self.eaten / self.visitedTimes
+        # - (self.rounds / self.visitedTimes)
+        # return (self.pillsEaten / self.visitedTimes) / (self.rounds / self.visitedTimes) - (self.pacmansEaten / self.visitedTimes) * (self.rounds / self.visitedTimes)
+        return (self.pillsEaten / self.visitedTimes)

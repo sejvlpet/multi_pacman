@@ -61,7 +61,6 @@ class Grid:
         step = 0
         over = False
         while not over:
-            self.gameStats["round"] += 1
             over = game.play(self, True)
             step += 1
 
