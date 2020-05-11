@@ -1,5 +1,7 @@
 import time
 import random
+from copy import deepcopy
+
 import game
 import grid
 import types
@@ -8,12 +10,10 @@ import types
 
 class MCTS:
 
-    # todo remember that you work with real grid from the game, if you want to override it, use cpy = game.copyGrid(grid)
     def __init__(self, gameGrid):
         self.grid = gameGrid
-        self.root = Node()  # fixme avoid grid overriding
+        self.root = Node(gameGrid.gameStats)  # fixme avoid grid overriding
         self.root.initiliaze(gameGrid, 0)
-        self.stats = Stats(gameGrid)
 
     def play(self):
         target = time.time() + 1
@@ -21,21 +21,59 @@ class MCTS:
         while time.time() < target:
             playedGames += 1
             self.root.findMove()
-        print(playedGames)
-        # todo choose best serie of moves
+
+        best = self.__getInitialBest()
+        self.__getBestMove(0, self.root.children, [], best)
+        res, moves = self.root.getNodeAndMoves(best["cords"])
+        
+        game.pacmansInWave(self.grid, moves)
+        print(best["score"])
 
 
+    """
+        passes children of root and choose the best move
+    """
+    # fixme maybe should be a function isntead
+    def __getBestMove(self, depth, children, cords, best):
+        if depth == len(self.root.childrenMoves) - 1:
+            # compare results
+            i = 0
+            for node in children:
+                score = node.stats.getMean()
+                if score > best["score"]:
+                    tmp = cords[:]
+                    tmp += [i]
+                    best["score"] = score
+                    best["cords"] = tmp
+                i += 1
+        else:
+            for i in range(self.root.movesCounts[depth]):
+                cords += [i]
+                self.__getBestMove(depth + 1, children[i], cords, best)
+                cords.pop()
+
+    """
+        return score of node at all 0
+    """
+    def __getInitialBest(self):
+        cords = [0 for i in range(len(self.root.movesCounts))]
+        best = {
+            "cords": cords,
+            "score": self.root.getScoreAt(cords)
+        }
+        return best
 
 
 """
     holds game state for particular node, knows it's children and some informations bout their moves
 """
 class Node:
-    def __init__(self, ):
+    def __init__(self, gameStats):
         self.initiliazed = False
         self.movesCounts = []
         self.childrenMoves = []
         self.children = []
+        self.stats = Stats(gameStats)
     """
         takes deep copy of game grid with game state coresponding to this node
     """
@@ -46,6 +84,7 @@ class Node:
             # todo handle locked pacmans - loose
             return
         self.__initiliazeChildren(0, self.children)
+        self.stats = Stats(self.grid.gameStats)
         self.level = level
         self.initiliazed = True
 
@@ -56,39 +95,45 @@ class Node:
         # todo better selection
         # print("playing at level ", self.level)
         rand = selectRandoms(self.movesCounts)
-        res, moves = self.__getNodeAndMoves(rand)
+        res, moves = self.getNodeAndMoves(rand)
 
         if isinstance(res, list):
             # todo handle finished games better
-            return
+            return self.grid.gameStats
         if not res.initiliazed:
             newGrid = grid.copyGrid(self.grid)
             game.pacmansInWave(newGrid, moves)
+            game.playGhosts(newGrid.maze, newGrid.ghosts, newGrid.pacmans, newGrid.gameStats)
             res.initiliaze(newGrid, self.level + 1)
             if not res.initiliazed:
                 # todo handle finished games better
-                return
+                return self.grid.gameStats
             stats = res.__playRandomGame()
         else:
-            # self.__playRandomGame()
             stats = res.findMove()
 
         # print(stats)
-        # return stats
+        self.stats.saveVisit(stats)
+        return stats
+
+    """
+        return score of node on indexes
+    """
+    def getScoreAt(self, indexes):
+        res, moves = self.getNodeAndMoves(indexes)
+        return res.stats.getMean()
 
     """
         plays random game and saves stats
     """
     def __playRandomGame(self):
-        stats = game.playRandomGame(grid.copyGrid(self.grid))
-        # todo set stats - for me and res
-        return stats
+        return game.playRandomGame(grid.copyGrid(self.grid))
 
 
     """
         finds and return node with its moves
     """
-    def __getNodeAndMoves(self, indexes):
+    def getNodeAndMoves(self, indexes):
         moves = []
         i = 0
         res = self.children
@@ -104,7 +149,7 @@ class Node:
     def __initiliazeChildren(self, depth, addTo):
         if depth == len(self.movesCounts) - 1:
             for i in range(self.movesCounts[depth]):
-                addTo += [Node()]
+                addTo += [Node(self.grid.gameStats)]
         else:
             for i in range(self.movesCounts[depth]):
                 addTo += [[]]
@@ -134,6 +179,16 @@ def selectRandoms(movesCounts):
     stats bout game
 """
 class Stats:
-    def __init__(self, grid):
-        # todo intializr stats from grid
-        pass
+    def __init__(self, gameStats):
+        self.initialEaten = gameStats["pillsEaten"]
+        self.visitedTimes = 0
+        self.eaten = 0
+
+    def saveVisit(self, gameStats):
+        self.eaten += gameStats["pillsEaten"] - self.initialEaten
+        self.visitedTimes += 1
+
+    def getMean(self):
+        if self.visitedTimes == 0:
+            return 0
+        return self.eaten / self.visitedTimes

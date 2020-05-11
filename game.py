@@ -30,16 +30,15 @@ def play(gameGrid, real=True):
     return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
 
 def playPacmans(gameGrid, maze, pacmans, gameStats, real):
-    # if not real:
-    for i in range(len(pacmans)):
-        pos = pacmans[i].getCord()
-        maze[pos[0]][pos[1]].remove("pacman")
+    if not real:
+        for i in range(len(pacmans)):
+            pos = pacmans[i].getCord()
+            maze[pos[0]][pos[1]].remove("pacman")
 
-        pos = pacmans[i].move(gameGrid)
-        maze[pos[0]][pos[1]].place("pacman", gameStats)
-        pacmans[i].cord = pos
-    # else:
-    if real:
+            pos = pacmans[i].move(gameGrid)
+            maze[pos[0]][pos[1]].place("pacman", gameStats)
+            pacmans[i].cord = pos
+    else:
         mcts = MCTS.MCTS(gameGrid)
         mcts.play()
 
@@ -68,13 +67,11 @@ def pacmansInWave(grid, moves):
         pacmans[i].cord = move
         i += 1
 
-    playGhosts(maze, grid.ghosts, pacmans, gameStats)
-
 """
     randomly plays and returns stats
 """
 def playRandomGame(grid):
-    target = time.time() + 0.005
+    target = time.time() + 0.01
     round = 0
     while not play(grid, False) and time.time() < target:
         # round += 1
