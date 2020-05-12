@@ -3,6 +3,8 @@ import grid
 if __name__ == "__main__":
     won = 0
     lost = 0
+    games = 0
+    percentageOfPillsEaten = 0
     while True:
         myGrid = grid.Grid()
         myGrid.createGame(13, 13, 5, 5)
@@ -10,6 +12,9 @@ if __name__ == "__main__":
         stats = myGrid.play()
         if stats["pillCount"] == 0:
             won += 1
-        else:
+        elif stats["pacmanCount"] == 0:
             lost += 1
-        print("won: ", won, " lost: ", lost)
+
+        percentageOfPillsEaten += stats["pillsEaten"] / (stats["pillsEaten"] + stats["pillCount"])
+        games += 1
+        print("games played:",  games, "won: ", won, " lost: ", lost, " mean % of eaten pills: ", percentageOfPillsEaten  / games)
