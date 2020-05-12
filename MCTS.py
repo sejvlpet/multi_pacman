@@ -80,7 +80,7 @@ class Node:
         passes children of root and choose the best move
     """
     def getBestMove(self, depth, children, cords, best, final):
-        if depth == len(self.childrenMoves) - 1:
+        if depth == len(self.movesCounts) - 1:
             # compare results
             i = 0
             for node in children:
