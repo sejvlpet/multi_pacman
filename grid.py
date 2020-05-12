@@ -69,7 +69,7 @@ class Grid:
             step += 1
 
             self.__draw()
-            self.clock.tick(4)
+            self.clock.tick(60)
             pygame.display.flip()
             round += 1
         return self.gameStats
