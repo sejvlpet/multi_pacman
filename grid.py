@@ -38,13 +38,13 @@ class Grid:
         from given params setups itself for a game
     """
     def createGame(self, colCount, rowCount, pacmansCount, ghostsCount):
-        # pygame.init()
+        pygame.init()
 
         self.real = True
-        # windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
-        #               colCount * (self.WIDTH + self.MARGIN)]
-        # self.screen = pygame.display.set_mode(windowSize)
-        # self.clock = pygame.time.Clock()
+        windowSize = [rowCount * (self.HEIGHT + self.MARGIN),
+                      colCount * (self.WIDTH + self.MARGIN)]
+        self.screen = pygame.display.set_mode(windowSize)
+        self.clock = pygame.time.Clock()
 
         self.colCount = colCount
         self.rowCount = rowCount
@@ -68,9 +68,9 @@ class Grid:
             over = game.play(self, True)
             step += 1
 
-            # self.__draw()
-            # self.clock.tick(4)
-            # pygame.display.flip()
+            self.__draw()
+            self.clock.tick(4)
+            pygame.display.flip()
             round += 1
         return self.gameStats
 
