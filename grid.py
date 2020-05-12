@@ -1,4 +1,3 @@
-from copy import deepcopy
 import _pickle as cPickle
 import pygame
 import random
@@ -6,7 +5,6 @@ import game
 import ghost
 import pacman
 
-# Those constants shall be in main
 EMPTY = 0
 PILL = 1
 STOP_PILL = 2
@@ -17,7 +15,6 @@ GHOST_AND_PILL = 6
 GHOST_AND_STOP_PILL = 7
 
 class Grid:
-    # public
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
@@ -236,11 +233,6 @@ def copyGrid(other):
     new.maze = cPickle.loads(cPickle.dumps(other.maze, -1))
     new.gameStats = cPickle.loads(cPickle.dumps(other.gameStats, -1))
 
-    # new.pacmans = deepcopy(other.pacmans)
-    # new.ghosts = deepcopy(other.ghosts)
-    #
-    # new.maze = deepcopy(other.maze)
-    # new.gameStats = deepcopy(other.gameStats)
     return new
 
 class Cell:
@@ -279,7 +271,6 @@ class Cell:
             gameStats["pillCount"] -= 1
             gameStats["pillsEaten"] += 1
             self.remove("pill")
-            self.remove("stopPill")
 
     def remove(self, member):
         self.members[member] = False

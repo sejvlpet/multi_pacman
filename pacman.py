@@ -1,10 +1,6 @@
-from copy import deepcopy
-
 import game
 import grid
 import random
-import heapq
-import MCTS
 
 class Pacman:
 
@@ -48,7 +44,6 @@ class Pacman:
 	def __nearestPill(self, maze):
 		neighbors = self.getMoves(maze)
 		added = {}
-		# fixme really inefective, but it shouldn't matter
 		for neighbor in neighbors:
 			row = neighbor[0]
 			col = neighbor[1]
@@ -58,8 +53,8 @@ class Pacman:
 			for t in tmp:
 				if (t[0], t[1]) not in added:
 					neighbors += [t]
-					added[(row, col)] = True
-		# todo remove
+					added[(t[0], t[1])] = True
+		# in case where is path to pill locked by ghost or pacman, nothning can be found
 		return self.cord
 
 	def __randomMove(self, maze):

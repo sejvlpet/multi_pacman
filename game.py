@@ -1,12 +1,7 @@
-import time
 import grid
-import math
 import MCTS
-import random
 
-#helpers
 def getDistance(pos1, pos2):
-    # return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
@@ -80,7 +75,6 @@ def pacmansInWave(grid, moves):
         if maze[move[0]][move[1]].members["pacman"]:
             i += 1
             continue
-            # fixme handle moves in wave
         maze[pos[0]][pos[1]].remove("pacman")
         maze[move[0]][move[1]].place("pacman", gameStats)
 
@@ -91,18 +85,16 @@ def pacmansInWave(grid, moves):
     randomly plays and returns stats
 """
 def playRandomGame(grid):
-    target = time.time() + 0.002
     tmp = grid.gameStats["pillCount"]
-    # if random.random() > 0.98:
-    # 	i = len(grid.maze) + len(grid.maze[0])
-    # else:
-    if grid.gameStats["pillCount"] > 0 and (len(grid.maze) + len(grid.maze[0])) / grid.gameStats["pillCount"] > 7:
-        i = (len(grid.maze) + len(grid.maze[0])) / grid.gameStats["pillCount"]
+    maxLength = len(grid.maze) + len(grid.maze[0])
+    if grid.gameStats["pillCount"] < 3:
+        i = maxLength * 5
+    elif grid.gameStats["pillCount"] > 0 and grid.gameStats["pillCount"] < 10:
+        i = maxLength / grid.gameStats["pillCount"]
     else:
-        i = 7
+        i = maxLength / 10
     saved = False
     while not play(grid, False) and i > 0:
-        # pass
         if not saved and tmp != grid.gameStats["pillCount"]:
             grid.gameStats["firstEatenAt"] = i
             saved = True

@@ -1,6 +1,5 @@
 import game
 import random
-import grid
 
 class Ghost:
 
@@ -74,7 +73,6 @@ class Ghost:
 		return moves
 
 	def __valid(self, row, col, maze):
-		# return not (maze[row][col] == grid.GHOST)
 		return True
 
 

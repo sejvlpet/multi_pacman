@@ -12,7 +12,7 @@ class MCTS:
 
     def __init__(self, gameGrid):
         self.grid = gameGrid
-        self.root = Node(gameGrid.gameStats)  # fixme avoid grid overriding
+        self.root = Node(gameGrid.gameStats)
         self.root.initiliaze(gameGrid, 0)
 
     def play(self):
@@ -22,46 +22,12 @@ class MCTS:
             playedGames += 1
             self.root.findMove()
 
-        best = self.__getInitialBest()
-        self.__getBestMove(0, self.root.children, [], best)
+        best = self.root.getInitialBest(True)
+        self.root.getBestMove(0, self.root.children, [], best, True)
         res, moves = self.root.getNodeAndMoves(best["cords"])
 
         game.pacmansInWave(self.grid, moves)
-        print(best["score"], playedGames)
-
-
-    """
-        passes children of root and choose the best move
-    """
-    # fixme maybe should be a function isntead
-    def __getBestMove(self, depth, children, cords, best):
-        if depth == len(self.root.childrenMoves) - 1:
-            # compare results
-            i = 0
-            for node in children:
-                score = node.stats.getScore()
-                if score > best["score"]:
-                    tmp = cords[:]
-                    tmp += [i]
-                    best["score"] = score
-                    best["cords"] = tmp
-                i += 1
-        else:
-            for i in range(self.root.movesCounts[depth]):
-                cords += [i]
-                self.__getBestMove(depth + 1, children[i], cords, best)
-                cords.pop()
-
-    """
-        return score of node at all 0
-    """
-    def __getInitialBest(self):
-        cords = [0 for i in range(len(self.root.movesCounts))]
-        best = {
-            "cords": cords,
-            "score": self.root.getScoreAt(cords)
-        }
-        return best
+        print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
 
 
 """
@@ -81,7 +47,6 @@ class Node:
         self.grid = gameGrid
         self.__setMoves()
         if len(self.childrenMoves) == 0:
-            # todo handle locked pacmans - loose
             return
         self.__initiliazeChildren(0, self.children)
         self.stats = stats.Stats(self.grid.gameStats)
@@ -92,21 +57,18 @@ class Node:
         selects child to play, initilazes if not , calls its play method and saves result
     """
     def findMove(self):
-        # todo better selection
-        # print("playing at level ", self.level)
-        rand = selectRandoms(self.movesCounts)
-        res, moves = self.getNodeAndMoves(rand)
+        best = self.getInitialBest(False)
+        self.getBestMove(0, self.children, [], best, False)
+        res, moves = self.getNodeAndMoves(best["cords"])
 
-        if isinstance(res, list):
-            # todo handle finished games better
-            return self.grid.gameStats
+        # if isinstance(res, list):
+        #     return self.grid.gameStats
         if not res.initiliazed:
             newGrid = grid.copyGrid(self.grid)
             game.pacmansInWave(newGrid, moves)
             game.playGhosts(newGrid.maze, newGrid.ghosts, newGrid.pacmans, newGrid.gameStats)
             res.initiliaze(newGrid, self.level + 1)
             if not res.initiliazed:
-                # todo handle finished games better
                 return self.grid.gameStats
             stats = res.__playRandomGame()
         else:
@@ -117,13 +79,55 @@ class Node:
         return stats
 
     """
+        passes children of root and choose the best move
+    """
+    def getBestMove(self, depth, children, cords, best, final):
+        if depth == len(self.childrenMoves) - 1:
+            # compare results
+            i = 0
+            for node in children:
+                score = node.stats.getScore() if final else node.stats.getRandomMetric()
+                if score > best["score"]:
+                    tmp = cords[:]
+                    tmp += [i]
+                    best["score"] = score
+                    best["cords"] = tmp
+                i += 1
+        else:
+            for i in range(self.movesCounts[depth]):
+                cords += [i]
+                self.getBestMove(depth + 1, children[i], cords, best, final)
+                cords.pop()
+
+    """
+        return score of node at all 0
+    """
+    def getInitialBest(self, final):
+        cords = [0 for i in range(len(self.movesCounts))]
+        best = {
+            "cords": cords,
+            "score": self.__getStatsAt(cords).getScore() if final else self.__getStatsAt(cords).getRandomMetric()
+        }
+        return best
+
+    """
+        gets count of possible moves
+    """
+
+    def multiply(self):
+        res = 1
+        for c in self.movesCounts:
+            res *= c
+        return res
+
+    """
         return score of node on indexes
     """
-    def getScoreAt(self, indexes):
+    def __getStatsAt(self, indexes):
         res, moves = self.getNodeAndMoves(indexes)
         if isinstance(res, list):
             return self.stats.getScore()
-        return res.stats.getScore()
+        return res.stats
 
     """
         plays random game and saves stats
@@ -165,7 +169,7 @@ class Node:
             moves = pacman.getMoves(self.grid.maze)
             if len(moves) > 0: # ignore pacmans without moves and let them die their death
                 self.movesCounts += [len(moves)]
-                self.childrenMoves += [moves[:]]  # fixme check if nothing overrides this
+                self.childrenMoves += [moves[:]]
 
 """
     selects random list from list of move counts
