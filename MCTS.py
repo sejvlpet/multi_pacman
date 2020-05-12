@@ -1,22 +1,23 @@
 import time
 import random
-import math
 import game
 import grid
 import stats
-import types
 
-
-
+"""
+    initializes root and searech monte carlo tree
+"""
 class MCTS:
 
     def __init__(self, gameGrid):
         self.grid = gameGrid
         self.root = Node(gameGrid.gameStats)
         self.root.initiliaze(gameGrid, 0)
-
+    """
+        searech for best move for a given amount of time
+    """
     def play(self):
-        target = time.time() + 0.33
+        target = time.time() + 0.5
         playedGames = 0
         while time.time() < target:
             playedGames += 1
@@ -27,7 +28,6 @@ class MCTS:
         res, moves = self.root.getNodeAndMoves(best["cords"])
 
         game.pacmansInWave(self.grid, moves)
-        print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
 
 
 """
@@ -61,8 +61,6 @@ class Node:
         self.getBestMove(0, self.children, [], best, False)
         res, moves = self.getNodeAndMoves(best["cords"])
 
-        # if isinstance(res, list):
-        #     return self.grid.gameStats
         if not res.initiliazed:
             newGrid = grid.copyGrid(self.grid)
             game.pacmansInWave(newGrid, moves)
@@ -74,7 +72,6 @@ class Node:
         else:
             stats = res.findMove()
 
-        # print(stats)
         self.stats.saveVisit(stats)
         return stats
 
@@ -88,9 +85,9 @@ class Node:
             for node in children:
                 score = node.stats.getScore() if final else node.stats.getRandomMetric()
                 if score > best["score"]:
+                    best["score"] = score
                     tmp = cords[:]
                     tmp += [i]
-                    best["score"] = score
                     best["cords"] = tmp
                 i += 1
         else:
@@ -113,7 +110,6 @@ class Node:
     """
         gets count of possible moves
     """
-
     def multiply(self):
         res = 1
         for c in self.movesCounts:
@@ -126,7 +122,7 @@ class Node:
     def __getStatsAt(self, indexes):
         res, moves = self.getNodeAndMoves(indexes)
         if isinstance(res, list):
-            return self.stats.getScore()
+            return self.stats
         return res.stats
 
     """
@@ -145,7 +141,7 @@ class Node:
         res = self.children
         for r in indexes:
             res = res[r]
-            moves += [self.childrenMoves[i][r]]  # this should choose correct move of pacman on this index
+            moves += [self.childrenMoves[i][r]]
             i += 1
         return res, moves
 

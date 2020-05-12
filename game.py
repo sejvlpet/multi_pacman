@@ -1,5 +1,9 @@
 import grid
 import MCTS
+"""
+    This file contains methods for game play
+"""
+
 
 def getDistance(pos1, pos2):
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
@@ -39,7 +43,9 @@ def play(gameGrid, real=True):
     playGhosts(maze, ghosts, pacmans, gameStats)
 
     return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
-
+"""
+    takes care about pacmans
+"""
 def playPacmans(gameGrid, maze, pacmans, gameStats, real):
     if not real:
         for i in range(len(pacmans)):
@@ -52,7 +58,9 @@ def playPacmans(gameGrid, maze, pacmans, gameStats, real):
     else:
         mcts = MCTS.MCTS(gameGrid)
         mcts.play()
-
+"""
+    takes care about ghosts
+"""
 def playGhosts(maze, ghosts, pacmans, gameStats):
     for i in range(len(ghosts)):
         pos = ghosts[i].getCord()

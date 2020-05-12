@@ -14,6 +14,9 @@ PACMAN = 5
 GHOST_AND_PILL = 6
 GHOST_AND_STOP_PILL = 7
 
+"""
+    Holds information about game grid and provides GUI
+"""
 class Grid:
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
@@ -27,11 +30,13 @@ class Grid:
     HEIGHT = 20
     MARGIN = 1
 
-
     def __del__(self):
         if self.real:
             pygame.quit()
 
+    """
+        from given params setups itself for a game
+    """
     def createGame(self, colCount, rowCount, pacmansCount, ghostsCount):
         pygame.init()
 
@@ -44,16 +49,17 @@ class Grid:
         self.colCount = colCount
         self.rowCount = rowCount
 
-        # generates maze with walls and pills
         self.__generateMaze(colCount, rowCount)
         pCords, gCords = self.__placeAgents(pacmansCount, ghostsCount)
 
-        # self.pacmans = pCords
         self.pacmans = self.__setPacmans(pCords)
         self.ghosts = self.__setGhosts(gCords)
 
         self.__setGameStats()
 
+    """
+        plays previously setuped game
+    """
     def play(self):
         step = 0
         over = False
@@ -67,10 +73,10 @@ class Grid:
 
         print(self.gameStats)
 
-    def getStats(self):
-        return self.maze, self.pillCount
-
     # private
+    """
+        sets default game stats dict
+    """
     def __setGameStats(self):
         self.gameStats = {
             "pillCount": self.pillCount,
@@ -82,8 +88,9 @@ class Grid:
             "looses": 0,
             "firstEatenAt": 0
         }
-
-
+    """
+        randomly places given count of agents and saves their positions
+    """
     def __placeAgents(self, pacmanCount, ghostCount):
         pacmans = []
         ghosts = []
@@ -104,6 +111,9 @@ class Grid:
 
         return pacmans, ghosts
 
+    """
+        setups ghost with their cords
+    """
     def __setGhosts(self, gCords):
         ghosts = []
         maxLength = len(self.maze) + len(self.maze[0])
@@ -111,19 +121,26 @@ class Grid:
             ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 6), int(maxLength / 4)))]
 
         return ghosts
-
+    """
+        setups pacmans with their cords
+    """
     def __setPacmans(self, pCords):
         pacmans = []
         for cord in pCords:
             pacmans += [pacman.Pacman(cord)]
 
         return pacmans
-
+    """
+        returns random cords as row and col
+    """
     def __getRowCol(self):
         row = random.randint(0, len(self.maze) - 1)
         col = random.randint(0, len(self.maze[0]) - 1)
         return row, col
 
+    """
+        GUI
+    """
     def __draw(self):
         self.screen.fill(self.GREY)
         rowIterator = 0
@@ -153,12 +170,15 @@ class Grid:
                                   self.HEIGHT])
                 colIterator += 1
             rowIterator += 1
-
+    """
+        add wall on given position
+    """
     def __addWalls(self, length, row, col):
         for i in range(length):
             self.maze[row + i][col].place("wall")
-
-
+    """
+        create walls into our grid
+    """
     def __createWalls(self):
         rowCount = len(self.maze)
         collCount = len(self.maze[0])
@@ -167,8 +187,8 @@ class Grid:
         while colIterator < collCount - 1:
             rowIterator = 1
             while rowIterator < rowCount - 1:
-                if (random.random() > 0.1):
-                    length = random.randint(0, int((rowCount - rowIterator) / 2))
+                if (random.random() > 0.05):
+                    length = random.randint(1, int((rowCount - rowIterator) / 2))
                     self.__addWalls(length, rowIterator, colIterator)
                     rowIterator += length
                     skip = True
@@ -177,7 +197,9 @@ class Grid:
                 colIterator += 1
                 skip = False
             colIterator += 1
-
+    """
+        adds pills into grid
+    """
     def __addPills(self):
         pillCount = 0
         for row in self.maze:
@@ -187,39 +209,19 @@ class Grid:
                     pillCount += 1
 
         return pillCount
-
-    def __addStopPill(self):
-        deletedPills = 0
-        if self.maze[0][0] == PILL:
-            self.maze[0][0].remove("pill")
-            deletedPills += 1
-        self.maze[0][0].place("stopPill")
-
-        if self.maze[0][len(self.maze[0]) - 1] == PILL:
-            self.maze[0][len(self.maze[0]) - 1].remove("pill")
-            deletedPills += 1
-        self.maze[0][len(self.maze[0]) - 1].place("stopPill")
-
-        if self.maze[len(self.maze) - 1][0] == PILL:
-            self.maze[len(self.maze) - 1][0].remove("pill")
-            deletedPills += 1
-        self.maze[len(self.maze) - 1][0].place("stopPill")
-
-        if self.maze[len(self.maze) - 1][len(self.maze[0]) - 1] == PILL:
-            self.maze[len(self.maze) - 1][len(self.maze[0]) - 1].remove("pill")
-            deletedPills += 1
-        self.maze[len(self.maze) - 1][len(self.maze[0]) - 1].place("stopPill")
-
-        return deletedPills
-
+    """
+        generates maze
+    """
     def __generateMaze(self, rowCount, collCount):
         # start with emty maze
         self.maze = [[Cell() for i in range(collCount)] for j in range(rowCount)]
 
         self.__createWalls()
         self.pillCount = self.__addPills()
-        # self.pillCount -= self.__addStopPill()
 
+"""
+    creates deep copy of entire grid object
+"""
 def copyGrid(other):
     new = Grid()
     new.real = False
@@ -235,6 +237,9 @@ def copyGrid(other):
 
     return new
 
+"""
+    class having informations and methods for better work with grid
+"""
 class Cell:
     # default memebers
     def __init__(self):
@@ -249,7 +254,7 @@ class Cell:
     def __eq__(self, other):
         return self.getStatus() == other
 
-    def placeGhost(self, pacmans = [], pos = [], gameStats = {}):
+    def placeGhost(self, pacmans=[], pos=[], gameStats={}):
         self.members["ghostCount"] += 1
 
         if self.members["pacman"]:
@@ -264,7 +269,7 @@ class Cell:
     def removeGhost(self):
         self.members["ghostCount"] -= 1
 
-    def place(self, member, gameStats = {}):
+    def place(self, member, gameStats={}):
         self.members[member] = True
 
         if member == "pacman" and self.members["pill"]:
@@ -287,5 +292,3 @@ class Cell:
         if self.members["stopPill"]:
             return STOP_PILL
         return EMPTY
-
-

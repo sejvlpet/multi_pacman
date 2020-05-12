@@ -1,8 +1,10 @@
 import game
 import random
 
+"""
+	ghost agent class
+"""
 class Ghost:
-
 	def __init__(self, cord, radius):
 		self.cord = cord
 		self.radius = radius
@@ -10,7 +12,9 @@ class Ghost:
 	def getCord(self):
 		return self.cord
 
-	# pacmans shall be list in shape [[row, col]]
+	"""
+		does and returns move of ghost
+	"""
 	def move(self, maze, pacmans):
 		pacmanNearby, cord = self.__pacmanNearby(maze, pacmans) 
 		if pacmanNearby:
@@ -21,7 +25,9 @@ class Ghost:
 		self.cord = newPos
 		return self.cord
 
-	# private
+	"""
+		searches for closest pacman
+	"""
 	def __pacmanNearby(self, maze, pacmans):
 		cord = [0, 0]
 		nearby = False
@@ -35,6 +41,9 @@ class Ghost:
 
 		return nearby, cord
 
+	"""
+		moves greedy towards given cord
+	"""
 	def __moveGreedy(self, cord, maze):
 		moves = self.__getMoves(maze)
 		if len(moves) == 0:
@@ -48,7 +57,9 @@ class Ghost:
 				minDistance = dist
 				finalMove = move
 		return finalMove
-
+	"""
+		moves randomly
+	"""
 	def __randomMove(self, maze):
 		moves = self.__getMoves(maze)
 		if len(moves) == 0:

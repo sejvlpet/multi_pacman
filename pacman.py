@@ -1,7 +1,9 @@
 import game
 import grid
 import random
-
+"""
+	Pacman agent class
+"""
 class Pacman:
 
 	def __init__(self, cord):
@@ -9,7 +11,9 @@ class Pacman:
 
 	def getCord(self):
 		return self.cord
-
+	"""
+		handles move of pacman
+	"""
 	def move(self, gameGrid):
 		maze = gameGrid.maze
 		ghosts = gameGrid.ghosts
@@ -40,7 +44,9 @@ class Pacman:
 			moves += [[self.cord[0], self.cord[1] - 1]]
 
 		return moves[:]
-
+	"""
+		finds cords of nearest reachable pill, if none found, returns its own cords
+	"""
 	def __nearestPill(self, maze):
 		neighbors = self.getMoves(maze)
 		added = {}
@@ -57,13 +63,18 @@ class Pacman:
 		# in case where is path to pill locked by ghost or pacman, nothning can be found
 		return self.cord
 
+	"""
+		returns random move
+	"""
 	def __randomMove(self, maze):
 		moves = self.getMoves(maze)
 
 		if len(moves) == 0:
 			return self.cord  # no move left, just die there
 		return moves[random.randint(0, len(moves) - 1)]
-
+	"""
+		returns greedy move to given cord
+	"""
 	def __greadyPill(self, cord, maze):
 		moves = self.getMoves(maze)
 
@@ -78,7 +89,9 @@ class Pacman:
 				minDistance = dist
 				finalMove = move
 		return finalMove
-
+	"""
+		returns greedz move from given cord
+	"""
 	def __movefromGhost(self, cord, maze):
 		moves = self.getMoves(maze)
 
@@ -94,7 +107,9 @@ class Pacman:
 				finalMove = move
 		return finalMove
 
-
+	"""
+		find nearest ghost
+	"""
 	def __nearestGhost(self, ghosts):
 		cord = ghosts[0].getCord()
 		minDistance = game.getDistance(self.cord, ghosts[0].getCord())
@@ -105,8 +120,6 @@ class Pacman:
 				cord = ghost.getCord()
 
 		return cord
-
-
 
 	def __valid(self, row, col, maze):
 		return not (maze[row][col] == grid.GHOST or maze[row][col] == grid.PACMAN)

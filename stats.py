@@ -35,14 +35,15 @@ class Stats:
     def getRandomMetric(self):
         if self.visitedTimes == 0:
             return random.randint(1000, 10000)
-        res = self.__getMetric() * random.randint(1, 4)
+        res = self.__getMetric() * random.random()
         return res
 
     def __getMetric(self):
         if self.visitedTimes == 0:
             return 0
 
-        metric = self.__mean(self.pillsEaten) / self.__mean(self.rounds) - self.__mean(self.pacmansEaten) / self.__mean(self.rounds)
+        metric = (self.__mean(self.pillsEaten) / self.__mean(self.rounds)
+            - self.__mean(self.pacmansEaten) * self.__mean(self.rounds)) * self.__mean(self.firsts)
         if self.wins > 0:
             return 100000 - self.__mean(self.rounds)
         if self.looses > 0:
@@ -61,14 +62,12 @@ class Score:
     """
         takes stats and saves what it needs
     """
-
     def __init__(self, stats):
         self.stats = stats
 
     """
         compares two scores
     """
-
     def __gt__(self, other):
         sStats = self.stats
         oStats = other.stats
@@ -78,10 +77,10 @@ class Score:
         if oStats.visitedTimes == 0:
             return True
 
-        sMetric = self.__mean(sStats.pillsEaten) / self.__mean(sStats.rounds) - self.__mean(sStats.pacmansEaten)\
-                  / self.__mean(sStats.rounds)
-        oMetric = other.__mean(oStats.pillsEaten) / other.__mean(oStats.rounds) - other.__mean(oStats.pacmansEaten)\
-                  / other.__mean(oStats.rounds)
+        sMetric = (self.__mean(sStats.pillsEaten) / self.__mean(sStats.rounds) - self.__mean(sStats.pacmansEaten) \
+                  * self.__mean(sStats.rounds)) * self.__mean(sStats.firsts)
+        oMetric = (other.__mean(oStats.pillsEaten) / other.__mean(oStats.rounds) - other.__mean(oStats.pacmansEaten) \
+                  * other.__mean(oStats.rounds)) * other.__mean(oStats.firsts)
         if self.__mean(sStats.wins) > 0 and other.__mean(oStats.wins) <= 0:
             return True
         if self.__mean(sStats.wins) <= 0 and other.__mean(oStats.wins) > 0:
@@ -90,7 +89,7 @@ class Score:
             # if this game is about to be won, choose the quickest solution
             return self.__mean(sStats.rounds) < other.__mean(oStats.rounds)
 
-        if self.__mean(sStats.pillsEaten) == other.__mean(oStats.pillsEaten) and\
+        if self.__mean(sStats.pillsEaten) == other.__mean(oStats.pillsEaten) and \
                 self.__mean(sStats.pacmansEaten) == other.__mean(oStats.pillsEaten):
             return self.__mean(sStats.firsts) < other.__mean(oStats.firsts)
 
