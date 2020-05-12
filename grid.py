@@ -84,7 +84,7 @@ class Grid:
             "pacmanCount": len(self.pacmans),
             "pillsEaten": 0,
             "pacmansEaten": 0,
-            "round": 0,
+            "round": 1,
             "wins": 0,
             "looses": 0,
             "firstEatenAt": 0

@@ -98,20 +98,20 @@ def playRandomGame(grid):
     maxLength = len(grid.maze) + len(grid.maze[0])
     if grid.gameStats["pillCount"] < 3:
         i = maxLength * 5
-    elif grid.gameStats["pillCount"] > 0 and grid.gameStats["pillCount"] < 10:
+    elif grid.gameStats["pillCount"] > 0 and grid.gameStats["pillCount"] < 4:
         i = maxLength / grid.gameStats["pillCount"]
     else:
-        i = maxLength / 10
+        i = maxLength / 4
     saved = False
     round = 0
     while not play(grid, False) and i > 0:
         if not saved and tmp != grid.gameStats["pillCount"]:
-            grid.gameStats["firstEatenAt"] = i
+            grid.gameStats["firstEatenAt"] += i
             saved = True
         i -= 1
         round += 1
 
-    grid.gameStats["rounds"] = round
+    grid.gameStats["round"] += round
     if grid.gameStats["pacmanCount"] == 0:
         grid.gameStats["looses"] = 1
     if grid.gameStats["pillCount"] == 0:

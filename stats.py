@@ -6,12 +6,12 @@ import random
 class Stats:
     def __init__(self, gameStats):
         self.initialPillsEaten = gameStats["pillsEaten"]
-        self.initialRounds = gameStats["round"]
+        self.initialround = gameStats["round"]
         self.initialPacmansEaten = gameStats["pacmansEaten"]
         self.initialLooses = gameStats["looses"]
         self.initialWins = gameStats["wins"]
 
-        self.rounds = 0
+        self.round = 0
         self.pillsEaten = 0
         self.pacmansEaten = 0
         self.looses = 0
@@ -22,7 +22,7 @@ class Stats:
 
     def saveVisit(self, gameStats):
         self.pillsEaten += gameStats["pillsEaten"] - self.initialPillsEaten
-        self.rounds += gameStats["round"] - self.initialRounds
+        self.round += gameStats["round"] - self.initialround
         self.pacmansEaten += gameStats["pacmansEaten"] - self.initialPillsEaten
         self.looses += gameStats["looses"] - self.initialLooses
         self.wins += gameStats["wins"] - self.initialWins
@@ -42,12 +42,11 @@ class Stats:
         if self.visitedTimes == 0:
             return 0
 
-        metric = (self.__mean(self.pillsEaten) / self.__mean(self.rounds)
-            - self.__mean(self.pacmansEaten) * self.__mean(self.rounds)) * self.__mean(self.firsts)
+        metric = self.__mean(self.pillsEaten)  - self.__mean(self.pacmansEaten)
         if self.wins > 0:
-            return 100000 - self.__mean(self.rounds)
+            return 100000 - self.__mean(self.round)
         if self.looses > 0:
-            return self.__mean(self.rounds)
+            return self.__mean(self.round)
 
         return metric
 
@@ -77,17 +76,15 @@ class Score:
         if oStats.visitedTimes == 0:
             return True
 
-        sMetric = (self.__mean(sStats.pillsEaten) / self.__mean(sStats.rounds) - self.__mean(sStats.pacmansEaten) \
-                  * self.__mean(sStats.rounds)) * self.__mean(sStats.firsts)
-        oMetric = (other.__mean(oStats.pillsEaten) / other.__mean(oStats.rounds) - other.__mean(oStats.pacmansEaten) \
-                  * other.__mean(oStats.rounds)) * other.__mean(oStats.firsts)
+        sMetric = self.__mean(sStats.pillsEaten) - self.__mean(sStats.pacmansEaten)
+        oMetric = other.__mean(oStats.pillsEaten)  - other.__mean(oStats.pacmansEaten)
         if self.__mean(sStats.wins) > 0 and other.__mean(oStats.wins) <= 0:
             return True
         if self.__mean(sStats.wins) <= 0 and other.__mean(oStats.wins) > 0:
             return False
         if self.__mean(sStats.wins) > 0 and other.__mean(oStats.wins) > 0:
             # if this game is about to be won, choose the quickest solution
-            return self.__mean(sStats.rounds) < other.__mean(oStats.rounds)
+            return self.__mean(sStats.round) < other.__mean(oStats.round)
 
         if self.__mean(sStats.pillsEaten) == other.__mean(oStats.pillsEaten) and \
                 self.__mean(sStats.pacmansEaten) == other.__mean(oStats.pillsEaten):
