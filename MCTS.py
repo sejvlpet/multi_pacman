@@ -23,12 +23,13 @@ class MCTS:
             playedGames += 1
             self.root.findMove()
 
-        best = self.root.getInitialBest(True)
-        self.root.getBestMove(0, self.root.children, [], best, True)
-        res, moves = self.root.getNodeAndMoves(best["cords"])
+        if len(self.root.movesCounts) > 0:
+            best = self.root.getInitialBest(True)
+            self.root.getBestMove(0, self.root.children, [], best, True)
+            res, moves = self.root.getNodeAndMoves(best["cords"])
 
-        print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
-        game.pacmansInWave(self.grid, moves)
+            # print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
+            game.pacmansInWave(self.grid, moves)
 
 
 """
@@ -58,6 +59,8 @@ class Node:
         selects child to play, initilazes if not , calls its play method and saves result
     """
     def findMove(self):
+        if len(self.movesCounts) == 0:
+            return self.grid.gameStats
         best = self.getInitialBest(False)
         self.getBestMove(0, self.children, [], best, False)
         res, moves = self.getNodeAndMoves(best["cords"])

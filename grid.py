@@ -63,15 +63,17 @@ class Grid:
     def play(self):
         step = 0
         over = False
-        while not over:
+        round = 0
+        while not over and round < 300:
             over = game.play(self, True)
             step += 1
 
             self.__draw()
             self.clock.tick(4)
             pygame.display.flip()
-
+            round += 1
         print(self.gameStats)
+        return self.gameStats
 
     # private
     """

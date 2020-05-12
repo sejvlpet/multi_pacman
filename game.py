@@ -103,12 +103,15 @@ def playRandomGame(grid):
     else:
         i = maxLength / 10
     saved = False
+    round = 0
     while not play(grid, False) and i > 0:
         if not saved and tmp != grid.gameStats["pillCount"]:
             grid.gameStats["firstEatenAt"] = i
             saved = True
         i -= 1
+        round += 1
 
+    grid.gameStats["rounds"] = round
     if grid.gameStats["pacmanCount"] == 0:
         grid.gameStats["looses"] = 1
     if grid.gameStats["pillCount"] == 0:
