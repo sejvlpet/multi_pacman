@@ -17,7 +17,7 @@ class MCTS:
         searech for best move for a given amount of time
     """
     def play(self):
-        target = time.time() + 0.5
+        target = time.time() + 0.33
         playedGames = 0
         while time.time() < target:
             playedGames += 1
@@ -27,6 +27,7 @@ class MCTS:
         self.root.getBestMove(0, self.root.children, [], best, True)
         res, moves = self.root.getNodeAndMoves(best["cords"])
 
+        print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
         game.pacmansInWave(self.grid, moves)
 
 

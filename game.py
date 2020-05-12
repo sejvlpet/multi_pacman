@@ -43,6 +43,7 @@ def play(gameGrid, real=True):
     playGhosts(maze, ghosts, pacmans, gameStats)
 
     return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
+
 """
     takes care about pacmans
 """

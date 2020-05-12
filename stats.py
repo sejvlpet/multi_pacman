@@ -35,7 +35,7 @@ class Stats:
     def getRandomMetric(self):
         if self.visitedTimes == 0:
             return random.randint(1000, 10000)
-        res = self.__getMetric() * random.random()
+        res = (self.__getMetric() ** 2) * random.random()
         return res
 
     def __getMetric(self):
