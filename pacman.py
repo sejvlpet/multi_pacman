@@ -21,7 +21,7 @@ class Pacman:
 		if r < 0.1:
 			cord = self.__nearestGhost(ghosts)
 			self.cord = self.__movefromGhost(cord, maze)
-		elif r < 0.8:
+		elif r < 0.9:
 			cord = self.__nearestPill(maze)
 			self.cord = self.__greadyPill(cord, maze)
 		else:

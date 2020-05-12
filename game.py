@@ -78,6 +78,7 @@ def pacmansInWave(grid, moves):
     for move in moves:
         pos = pacmans[i].getCord()
         if maze[move[0]][move[1]].members["pacman"]:
+            i += 1
             continue
             # fixme handle moves in wave
         maze[pos[0]][pos[1]].remove("pacman")
@@ -92,10 +93,13 @@ def pacmansInWave(grid, moves):
 def playRandomGame(grid):
     target = time.time() + 0.002
     tmp = grid.gameStats["pillCount"]
-    if random.random() > 0.8:
-    	i = 20
+    # if random.random() > 0.98:
+    # 	i = len(grid.maze) + len(grid.maze[0])
+    # else:
+    if grid.gameStats["pillCount"] > 0 and (len(grid.maze) + len(grid.maze[0])) / grid.gameStats["pillCount"] > 7:
+        i = (len(grid.maze) + len(grid.maze[0])) / grid.gameStats["pillCount"]
     else:
-    	i = 5
+        i = 7
     saved = False
     while not play(grid, False) and i > 0:
         # pass

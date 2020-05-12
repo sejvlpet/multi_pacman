@@ -111,7 +111,7 @@ class Grid:
         ghosts = []
         maxLength = len(self.maze) + len(self.maze[0])
         for cord in gCords:
-            ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 10), int(maxLength / 5)))]
+            ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 6), int(maxLength / 4)))]
 
         return ghosts
 

@@ -3,6 +3,7 @@ import random
 import math
 import game
 import grid
+import stats
 import types
 
 
@@ -72,7 +73,7 @@ class Node:
         self.movesCounts = []
         self.childrenMoves = []
         self.children = []
-        self.stats = Stats(gameStats)
+        self.stats = stats.Stats(gameStats)
     """
         takes deep copy of game grid with game state coresponding to this node
     """
@@ -83,7 +84,7 @@ class Node:
             # todo handle locked pacmans - loose
             return
         self.__initiliazeChildren(0, self.children)
-        self.stats = Stats(self.grid.gameStats)
+        self.stats = stats.Stats(self.grid.gameStats)
         self.level = level
         self.initiliazed = True
 
@@ -120,6 +121,8 @@ class Node:
     """
     def getScoreAt(self, indexes):
         res, moves = self.getNodeAndMoves(indexes)
+        if isinstance(res, list):
+            return self.stats.getScore()
         return res.stats.getScore()
 
     """
@@ -172,51 +175,3 @@ def selectRandoms(movesCounts):
     for c in movesCounts:
         res += [random.randint(0, c - 1)]
     return res
-
-
-"""
-    stats bout game
-"""
-class Stats:
-    def __init__(self, gameStats):
-        self.initialPillsEaten = gameStats["pillsEaten"]
-        self.initialRounds = gameStats["round"]
-        self.initialPacmansEaten = gameStats["pacmansEaten"]
-        self.initialLooses = gameStats["looses"]
-        self.initialWins = gameStats["wins"]
-
-        self.rounds = 0
-        self.pillsEaten = 0
-        self.pacmansEaten = 0
-        self.looses = 0
-        self.wins = 0
-        self.firsts = 0
-
-        self.visitedTimes = 0
-
-    def saveVisit(self, gameStats):
-        self.pillsEaten += gameStats["pillsEaten"] - self.initialPillsEaten
-        self.rounds += gameStats["round"] - self.initialRounds
-        self.pacmansEaten += gameStats["pacmansEaten"] - self.initialPillsEaten
-        self.looses += gameStats["looses"] - self.initialLooses
-        self.wins += gameStats["wins"] - self.initialWins
-        self.firsts += gameStats["firstEatenAt"]
-        self.visitedTimes += 1
-
-    def getScore(self):
-        if self.visitedTimes == 0:
-            return 0
-
-        metric = self.__mean(self.pillsEaten) - self.__mean(self.pacmansEaten) + self.__mean(self.firsts) / 10
-        if self.wins > 0:
-            return 10000 - self.__mean(self.rounds)
-        if self.looses > 0:
-            return self.__mean(self.rounds)
-
-        return metric
-        # return (self.pillsEaten / self.visitedTimes) / (self.rounds / self.visitedTimes)
-        # return (self.pillsEaten / self.visitedTimes) * ((self.firsts / self.visitedTimes) + 1)
-        # return self.pillsEaten / self.visitedTimes
-
-    def __mean(self, val):
-        return val / self.visitedTimes
