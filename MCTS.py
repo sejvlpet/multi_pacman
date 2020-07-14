@@ -31,7 +31,6 @@ class MCTS:
 
             # print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
             game.pacmansInWave(self.grid, moves)
-            print(playedGames)
             return best["mtcs"]
 
 
