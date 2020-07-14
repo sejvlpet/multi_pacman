@@ -32,22 +32,22 @@ def getNeighbors(cord, maze):
     takes care about play
     returns true if game's over
 """
-def play(gameGrid, real=True):
+def play(gameGrid, real = True, mtcs = None):
     gameGrid.gameStats["round"] += 1
     pacmans = gameGrid.pacmans
     ghosts = gameGrid.ghosts
     maze = gameGrid.maze
     gameStats = gameGrid.gameStats
 
-    playPacmans(gameGrid, maze, pacmans, gameStats, real)
+    mtcs = playPacmans(gameGrid, maze, pacmans, gameStats, real, mtcs)
     playGhosts(maze, ghosts, pacmans, gameStats)
 
-    return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0
+    return gameStats["pacmanCount"] <= 0 or gameStats["pillCount"] <= 0, mtcs
 
 """
     takes care about pacmans
 """
-def playPacmans(gameGrid, maze, pacmans, gameStats, real):
+def playPacmans(gameGrid, maze, pacmans, gameStats, real, mtcs):
     if not real:
         for i in range(len(pacmans)):
             pos = pacmans[i].getCord()
@@ -57,8 +57,8 @@ def playPacmans(gameGrid, maze, pacmans, gameStats, real):
             maze[pos[0]][pos[1]].place("pacman", gameStats)
             pacmans[i].cord = pos
     else:
-        mcts = MCTS.MCTS(gameGrid)
-        mcts.play()
+        mcts = MCTS.MCTS(gameGrid, mtcs)
+        return mcts.play()
 """
     takes care about ghosts
 """

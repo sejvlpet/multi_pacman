@@ -64,8 +64,9 @@ class Grid:
         step = 0
         over = False
         round = 0
+        mtcs = None
         while not over and round < 300:
-            over = game.play(self, True)
+            over, mtcs = game.play(self, True, mtcs)
             step += 1
 
             self.__draw()
@@ -119,7 +120,7 @@ class Grid:
         ghosts = []
         maxLength = len(self.maze) + len(self.maze[0])
         for cord in gCords:
-            ghosts += [ghost.Ghost(cord, random.randint(int(maxLength / 6), int(maxLength / 4)))]
+            ghosts += [ghost.Ghost(cord, maxLength * 10)]
 
         return ghosts
     """

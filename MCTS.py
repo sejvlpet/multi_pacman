@@ -9,10 +9,11 @@ import stats
 """
 class MCTS:
 
-    def __init__(self, gameGrid):
+    def __init__(self, gameGrid, mtcs):
         self.grid = gameGrid
         self.root = Node(gameGrid.gameStats)
         self.root.initiliaze(gameGrid, 0)
+        self = mtcs
     """
         searech for best move for a given amount of time
     """
@@ -30,6 +31,8 @@ class MCTS:
 
             # print("games from root: ", playedGames, " possible games from root: ", self.root.multiply())
             game.pacmansInWave(self.grid, moves)
+            print(playedGames)
+            return best["mtcs"]
 
 
 """
@@ -93,6 +96,7 @@ class Node:
                     tmp = cords[:]
                     tmp += [i]
                     best["cords"] = tmp
+                    best["mtcs"] = node
                 i += 1
         else:
             for i in range(self.movesCounts[depth]):
@@ -107,7 +111,8 @@ class Node:
         cords = [0 for i in range(len(self.movesCounts))]
         best = {
             "cords": cords,
-            "score": self.__getStatsAt(cords).getScore() if final else self.__getStatsAt(cords).getRandomMetric()
+            "score": self.__getStatsAt(cords).getScore() if final else self.__getStatsAt(cords).getRandomMetric(),
+            "mtcs": self
         }
         return best
 
